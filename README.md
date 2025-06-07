@@ -1,3 +1,18 @@
+## 은재 ver 최초 기능 구현 코드 실행시 참고 (feature1 branch에 등록)
+준비 : FlaskAPI 설치 / FFmpeg 깔고 시스템 PATH에 등록
+(encode.py 코드에 ffmpeg_path로 실행경로 잘 넣어주기! 사람마다 다를 것)
+https://velog.io/@tjdwjdgus99/ffmpeg-%EC%82%AC%EC%9A%A9%EB%B2%95 참고
+
+[실행순서] 
+1. server의 encode.py 실행시켜서 영상 3개 인코딩하고 segment랑 mpd 파일 생성  
+2. 터미널에서 실행 (server)
+cd server
+python -m uvicorn main:app --reload
+3. index.html 파일 Live Server로 실행
+
+
+
+
 # 실시간 적응형 비디오 스트리밍 시스템  
 > 네트워크 상태와 영상 특성 기반의 Adaptive Bitrate Streaming (ABR)
 
