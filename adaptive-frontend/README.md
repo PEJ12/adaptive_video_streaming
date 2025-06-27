@@ -1,3 +1,10 @@
+# 웹페이지 생성 방법
+
+cmd 에서 "C:\streaming" -> cd adaptive-frontend -> npm run dev 하면 웹페이지 주소 나옴!
+
+로그인 : 아이디(111), 비번(222)
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
