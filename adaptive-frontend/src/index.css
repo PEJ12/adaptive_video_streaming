@@ -232,14 +232,26 @@ body {
 .hero {
   position: relative;
   width: 100%;
-  height: 50vh;
-  background-size: cover;
-  background-position: center;
+  height: 300px;             /* 원하는 고정 높이(px 또는 vh) */
   border-radius: var(--radius);
+  overflow: hidden;
   margin-bottom: var(--gap);
   cursor: pointer;
-  overflow: hidden;
+  background: #000;          /* 영상이 다 차지 못할 때 레터박스용 배경 */
 }
+
+/* 히어로영상: 잘리지 않고 전체가 보이게 */
+.hero-video {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: auto;    /* 자동으로 비율 유지 */
+  height: 100%;   /* 컨테이너 높이에 맞춤 */
+  transform: translate(-50%, -50%);
+  object-fit: contain;       /* cover → contain 으로 변경 */
+  background: #000;
+}
+
+
 .hero::after {
   content: '';
   position: absolute;
@@ -250,6 +262,22 @@ body {
     rgba(0,0,0,0)
   );
 }
+
+
+.hero-title {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--white);
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-radius: var(--radius);
+  z-index: 2;
+}
+
+
 .play-btn {
   position: absolute;
   bottom: 2rem;
@@ -264,6 +292,7 @@ body {
   cursor: pointer;
   transition: opacity 0.2s;
 }
+
 .play-btn:hover {
   opacity: 0.8;
 }
@@ -276,10 +305,10 @@ body {
 
 /* ───────── 가로 스크롤 썸네일 ───────── */
 .browse-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap);
-  overflow-x: auto;
-  padding-bottom: var(--gap);
+  margin-top: var(--gap);
 }
 .browse-row::-webkit-scrollbar {
   height: 6px;
@@ -312,3 +341,16 @@ body {
   font-size: 0.9rem;
 }
 
+/* 썸네일 대신 화면에 재생될 비디오 프리뷰 */
+.browse-video-preview {
+  width: 100%;            /* 부모 .browse-item의 min-width(200px)를 채우고 */
+  height: 200px;          /* 높이를 200px로 고정 */
+  object-fit: cover;      /* 비디오 비율 채우기 */
+  border-radius: var(--radius);
+  transition: transform 0.3s ease;
+}
+
+/* hover 시 살짝 확대 */
+.browse-item:hover .browse-video-preview {
+  transform: scale(1.05);
+}
