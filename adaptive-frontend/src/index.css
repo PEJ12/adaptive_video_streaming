@@ -1,0 +1,314 @@
+/* src/index.css */
+
+:root {
+  --primary:   #005BAC;
+  --secondary: #009CDE;
+  --bg-dark:   #000;
+  --overlay:   rgba(0,0,0,0.7);
+  --white:     #fff;
+  --radius:    8px;
+  --gap:       1.5rem;
+  --font:      'Segoe UI', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg-dark);
+  color: var(--white);
+}
+
+/* ───────── 로그인 페이지 ───────── */
+
+/* src/index.css — 로그인 관련 부분만 발췌 */
+
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  /* 1) 사진을 그대로 background 로 설정 */
+  background: url('/assets/pnu.jpg') center center no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gap);
+  overflow: hidden;
+}
+
+/* 2) 사진 위에 얇은 흰 오버레이 */
+.login-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.75); /* 75% 흰색 덮어씌우기 */
+  z-index: 0;
+}
+
+/* 3) 로그인 카드가 오버레이 위로 올라오도록 */
+.login-card {
+  position: relative;
+  z-index: 1;
+  /* 카드 배경을 약간 어둡게 해서 입력폼이 눈에 잘 띄게 */
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: var(--radius);
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* 4) 카드 상단 로고는 제거 */
+.card-logo {
+  display: none;
+}
+
+
+
+
+/* 제목 */
+.login-card h1 {
+  font-size: 1.75rem;
+  color: var(--white);
+  margin-bottom: var(--gap);
+}
+
+/* 입력 필드 */
+.login-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  background: var(--white);
+  color: var(--primary);
+  font-weight: bold;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+/* 에러 메시지 */
+.error-text {
+  color: #ff4d4f;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+:root {
+  --primary:   #005BAC;
+  --secondary: #009CDE;
+  --white:     #fff;
+  --radius:    8px;
+  --gap:       1.5rem;
+  --font:      'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg-dark);
+  color: var(--white);
+}
+
+
+
+/* 프로필 선택 페이지 전체 */
+/* ───────── 프로필 선택 페이지 ───────── */
+
+/* 1) 배경: 캠퍼스 사진 + 어두운 오버레이 */
+.profile-page {
+  position: relative;
+  min-height: 100vh;
+  background: url('/assets/pnu.jpg') center center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* ← 이 한 줄 추가하면 제목+그리드가 화면 높이의 중앙으로 옵니다 */
+  justify-content: center;
+  padding: var(--gap);
+  overflow: hidden;
+}
+
+
+.profile-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 0;
+}
+
+/* all direct children above overlay */
+.profile-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-title {
+  margin: var(--gap) 0;
+  font-size: 2rem;
+  color: var(--white);
+  text-align: center;
+}
+
+/* 2) 중앙 정렬된 flex 그리드 */
+.profile-grid {
+  display: flex;
+  justify-content: center; /* 가로 중앙 */
+  align-items: center;     /* 세로 중앙 */
+  gap: var(--gap);
+  flex-wrap: wrap;         /* 줄 바꿈 허용 */
+  margin-top: var(--gap);
+}
+
+/* 3) 카드와 아바타 기본 스타일 */
+.profile-card {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-name {
+  margin-top: 0.5rem;
+  color: var(--white);
+  font-weight: 500;
+}
+
+/* 4) hover 효과 */
+.profile-card:hover {
+  transform: translateY(-8px);
+}
+.profile-card:hover .profile-avatar {
+  border-color: var(--white);
+}
+
+
+/* ───────── 브라우즈 페이지 전체 ───────── */
+.browse-page {
+  min-height: 100vh;
+  background: #000;              /* 짙은 배경 */
+  color: #fff;
+  padding: var(--gap);
+}
+
+/* ───────── 히어로 배너 ───────── */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius);
+  margin-bottom: var(--gap);
+  cursor: pointer;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.8),
+    rgba(0,0,0,0)
+  );
+}
+.play-btn {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 1;
+  background: rgba(255,255,255,0.9);
+  color: var(--primary);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.play-btn:hover {
+  opacity: 0.8;
+}
+
+/* ───────── 섹션 타이틀 ───────── */
+.section-title {
+  font-size: 1.5rem;
+  margin: var(--gap) 0;
+}
+
+/* ───────── 가로 스크롤 썸네일 ───────── */
+.browse-row {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  padding-bottom: var(--gap);
+}
+.browse-row::-webkit-scrollbar {
+  height: 6px;
+}
+.browse-row::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
+
+/* ───────── 개별 아이템 ───────── */
+.browse-item {
+  min-width: 200px;
+  flex: none;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.browse-item:hover {
+  transform: scale(1.1);
+  z-index: 2;
+}
+.browse-thumb {
+  width: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+.browse-label {
+  display: block;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
