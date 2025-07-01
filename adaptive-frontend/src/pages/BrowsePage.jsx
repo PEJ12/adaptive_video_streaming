@@ -1,70 +1,58 @@
-// src/pages/BrowsePage.jsx
-import React, { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 
-const videos = [
-  { id: 1, title: '영상 1', thumb: '/assets/video1-thumb.jpg' },
-  { id: 2, title: '영상 2', thumb: '/assets/video2-thumb.jpg' },
-  { id: 3, title: '영상 3', thumb: '/assets/video3-thumb.jpg' },
-]
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import DashPlayer from '../components/DashPlayer';
+import vids from '../assets/videos.js'; // [{ id, title, manifest, thumbnail }, ...]
+
+//import './BrowsePage.css';
 
 export default function BrowsePage() {
-  const { profileId } = useParams()
-  const nav = useNavigate()
-
-  // ① 현재 히어로 비디오 상태로 관리
-  const [hero, setHero] = useState(videos[0])
+  const { profileId } = useParams();
+  const navigate = useNavigate();
+  const [hero, setHero] = useState(vids[0]);
 
   return (
     <div className="browse-page">
       {/* Hero 배너 */}
-      <div className="hero">
-        <video
-          className="hero-video"
-          src={`/assets/videos/video${hero.id}.mp4`}
-          poster={hero.thumb}
-          muted
-          autoPlay
-          loop
-          playsInline
-        />
-        <div className="hero-title">
-          {hero.title}
-        </div>
-        {/* Hero의 Play 버튼은 hero.id로 이동 */}
-        <button
-          className="play-btn"
-          onClick={() => nav(`/player/${hero.id}`)}
-        >
-          ▶ 지금 재생
-        </button>
-      </div>
+      <section className="hero">
+        {/* DashPlayer로 hero 비디오 렌더링 */}
+        <DashPlayer manifestUrl={`http://localhost:8000${hero.manifest}`} />
 
+        {/* 타이틀과 재생 버튼 오버레이 */}
+        <div className="hero-overlay">
+          <h1 className="hero-title">{hero.title}</h1>
+          <button
+            className="play-btn"
+            onClick={() => navigate(`/browse/${profileId}/player/${hero.id}`)}
+          >
+            ▶ 지금 재생
+          </button>
+        </div>
+      </section>
+
+      {/* 추천 콘텐츠 섹션 제목 */}
       <h2 className="section-title">
         프로필 {profileId}님을 위한 추천 콘텐츠
       </h2>
 
+      {/* 썸네일 리스트 */}
       <div className="browse-row">
-        {videos.map(v => (
+        {vids.map(v => (
           <div
             key={v.id}
-            className="browse-item"
-            // ② 썸네일 클릭 시 히어로 상태를 해당 영상으로 교체
+            className={`browse-item ${v.id === hero.id ? 'active' : ''}`}
             onClick={() => setHero(v)}
           >
-            <video
-              className="browse-video-preview"
-              src={`/assets/videos/video${v.id}.mp4`}
-              poster={v.thumb}
-              muted
-              autoPlay
-              loop
-              playsInline
+            {/* 이미지 태그로 변경하여 로딩 경량화 */}
+            <img
+              className="browse-thumb"
+              src={v.thumbnail}
+              alt={`${v.title} 썸네일`}
             />
-            <span className="browse-label">{v.title}</span>
+            <p className="browse-label">{v.title}</p>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

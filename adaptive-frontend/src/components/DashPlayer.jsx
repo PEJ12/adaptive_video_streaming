@@ -3,7 +3,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import vids from '../assets/videos.js'
 import DashPlayer from '../components/DashPlayer'
-
+//import './PlayerPage.css'
 
 export default function PlayerPage() {
   const { profileId, videoId } = useParams()
@@ -29,30 +29,31 @@ export default function PlayerPage() {
   )
 }
 
-
 /*
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import dashjs from 'dashjs';
+import React, { useRef, useEffect } from 'react'
+import dashjs from 'dashjs'
+import './DashPlayer.css'
 
-export default function PlayerPage() {
-  const { id } = useParams();
-  useEffect(()=>{
-    const player = dashjs.MediaPlayer().create();
-    player.initialize(document.getElementById('videoPlayer'),
-                      'http://localhost:8000/video3/manifest.mpd',
-                      true);
-  }, []);
+const DashPlayer = ({ manifestUrl }) => {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    if (!videoRef.current) return
+    const player = dashjs.MediaPlayer().create()
+    player.initialize(videoRef.current, manifestUrl, true)
+    return () => player.reset()
+  }, [manifestUrl])
+
   return (
-    <div className="player-container">
-      <header className="player-header">
-        <img src="/assets/pnu-logo.jpg" alt="부산대 로고" className="logo small"/>
-        <img src="/assets/sanjini.jpg" alt="산지니" className="mascot-small"/>
-      </header>
-      <div className="video-wrapper">
-        <video id="videoPlayer" controls className="video-element"/>
-      </div>
+    <div className={styles.container}>
+      <video
+        ref={videoRef}
+        className={styles.video}
+        controls
+      />
     </div>
-  );
+  )
 }
+
+export default DashPlayer
 */

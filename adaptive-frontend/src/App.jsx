@@ -1,4 +1,6 @@
 // src/App.jsx
+import './index.css'; 
+
 import { Routes, Route } from 'react-router-dom';
 import LoginPage   from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
@@ -11,7 +13,7 @@ export default function App() {
       <Route path="/"           element={<LoginPage />} />
       <Route path="/profiles"   element={<ProfilePage />} />
       <Route path="/browse/:profileId" element={<BrowsePage />} />
-      <Route path="/player/:id" element={<PlayerPage />} />
+      <Route path="/browse/:profileId/player/:videoId"    element={<PlayerPage  />} />
     </Routes>
   );
 }

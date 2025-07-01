@@ -2,6 +2,12 @@
 #3개의 mp4 영상을 읽어서, 각각에 대해 4개 해상도(360p, 480p, 720p, 1080p)로
 #인코딩을 하고, DASH 스트리밍용 MPD + 세그먼트들을 생성
 
+#실행순서
+#encode.py 실행 후 
+#cd server
+#python -m uvicorn main:app --reload
+#index.html 을 live server로 실행
+
 import os
 import subprocess
 
