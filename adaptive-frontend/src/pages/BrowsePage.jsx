@@ -10,6 +10,7 @@ export default function BrowsePage() {
   const { profileId } = useParams();
   const navigate = useNavigate();
   const [hero, setHero] = useState(vids[0]);
+  
 
   return (
     <div className="browse-page">
@@ -56,3 +57,4 @@ export default function BrowsePage() {
     </div>
   );
 }
+
