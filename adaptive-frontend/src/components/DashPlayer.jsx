@@ -14,26 +14,26 @@ export default function DashPlayer({ manifestUrl }) {
     const player = dashjs.MediaPlayer().create()
     player.initialize(videoRef.current, manifestUrl, true)
 
-    // ✅ 초기화 시 현재 트랙 정보 직접 가져오기
-    player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+    const logCurrentTrackInfo = (label) => {
       const currentTrack = player.getCurrentTrackFor('video')
       if (currentTrack) {
-        console.log('✅ [STREAM_INITIALIZED]')
+        // bitrateList가 존재하면 첫 번째 항목 가져오기
+        const rep = currentTrack.bitrateList?.[0]  // 현재 해상도 하나만 존재하므로 0번
+        console.log(`✅ [${label}]`)
         console.log(`   • ID        : ${currentTrack.id}`)
-        console.log(`   • Height    : ${currentTrack.height}p`)
-        console.log(`   • Bandwidth : ${currentTrack.bandwidth} bps`)
+        console.log(`   • Height    : ${rep?.height ?? 'Unknown'}p`)
+        console.log(`   • Bandwidth : ${rep?.bandwidth ?? 'Unknown'} bps`)
+      } else {
+        console.warn(`⚠️ [${label}] currentTrack를 찾을 수 없습니다.`)
       }
+    }
+
+    player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+      logCurrentTrackInfo('STREAM_INITIALIZED')
     })
 
-    // ✅ 화질 변경 시 getCurrentTrackFor 사용
     player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => {
-      const currentTrack = player.getCurrentTrackFor('video')
-      if (currentTrack) {
-        console.log('🟢 [QUALITY_CHANGE_RENDERED]')
-        console.log(`   • ID        : ${currentTrack.id}`)
-        console.log(`   • Height    : ${currentTrack.height}p`)
-        console.log(`   • Bandwidth : ${currentTrack.bandwidth} bps`)
-      }
+      logCurrentTrackInfo('QUALITY_CHANGE_RENDERED')
     })
 
     return () => {
