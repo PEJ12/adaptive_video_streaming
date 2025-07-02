@@ -1,5 +1,3 @@
-// src/components/DashPlayer.jsx
-// src/components/DashPlayer.jsx
 import React, { useRef, useEffect } from 'react'
 import './DashPlayer.css'
 
@@ -7,31 +5,39 @@ export default function DashPlayer({ manifestUrl }) {
   const videoRef = useRef(null)
 
   useEffect(() => {
-    let player
+    const dashjs = window.dashjs
+    if (!dashjs || typeof dashjs.MediaPlayer !== 'function') {
+      console.error('❌ dash.js 로딩 실패')
+      return
+    }
 
-    // 런타임에 CDN에서 ESM 모듈을 불러옵니다.
-    import('https://cdn.dashjs.org/latest/modern/esm/dash.all.min.js')
-      .then((dashjs) => {
-        console.log('DashPlayer init with URL:', manifestUrl)
-        if (!videoRef.current) return
+    const player = dashjs.MediaPlayer().create()
+    player.initialize(videoRef.current, manifestUrl, true)
 
-        // CDN 모듈에서 MediaPlayer를 꺼내서 플레이어 생성
-        player = dashjs.MediaPlayer().create()
-        player.initialize(videoRef.current, manifestUrl, true)
-      })
-      .catch(err => {
-        console.error('dash.js 모듈 로딩 실패:', err)
-      })
+    // ✅ 초기화 시 현재 트랙 정보 직접 가져오기
+    player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+      const currentTrack = player.getCurrentTrackFor('video')
+      if (currentTrack) {
+        console.log('✅ [STREAM_INITIALIZED]')
+        console.log(`   • ID        : ${currentTrack.id}`)
+        console.log(`   • Height    : ${currentTrack.height}p`)
+        console.log(`   • Bandwidth : ${currentTrack.bandwidth} bps`)
+      }
+    })
+
+    // ✅ 화질 변경 시 getCurrentTrackFor 사용
+    player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => {
+      const currentTrack = player.getCurrentTrackFor('video')
+      if (currentTrack) {
+        console.log('🟢 [QUALITY_CHANGE_RENDERED]')
+        console.log(`   • ID        : ${currentTrack.id}`)
+        console.log(`   • Height    : ${currentTrack.height}p`)
+        console.log(`   • Bandwidth : ${currentTrack.bandwidth} bps`)
+      }
+    })
 
     return () => {
-      if (player) {
       player.reset()
-      player = null              // Dash.js 인스턴스 해제
-    }
-    if (videoRef.current) {
-      videoRef.current.removeAttribute('src')  
-      videoRef.current.load()     // video 태그의 src 언로드
-    }
     }
   }, [manifestUrl])
 
