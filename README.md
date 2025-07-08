@@ -1,5 +1,8 @@
 # Netflix Clone React.js
 
+##
+기초 UI 및 라우팅 구조는 GitHub 오픈소스인 Netflix-reactjs를 참고하였으며, 그 위에 적응형 스트리밍 시스템을 구현함
+
 ## Overview
 This project is a Netflix clone built using React.js, designed to enhance skills in web development. It features a fully interactive user interface with various functionalities, making it a comprehensive movie-watching experience. The project is powered by TMDB API, utilizing Firebase for database management.
 
