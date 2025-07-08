@@ -73,6 +73,9 @@ function RowPost(props) {
   };
 
   const handleMoviePopup = (movieInfo) => {
+
+    if (props.movieData) return;
+
     if (shouldPop) {
       setMoviePopupInfo(movieInfo);
       setShowModal(true);
@@ -97,7 +100,7 @@ function RowPost(props) {
       {PopupMessage}
       {removePopupMessage}
 
-      {movies[0] ? (
+      {Array.isArray(movies) && movies.length > 0 ? (
         <>
           <h1 className="text-white pb-4 xl:pb-0 font-normal text-base sm:text-2xl md:text-4xl">
             {props.title}

@@ -19,6 +19,9 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/FirebaseConfig";
 import { AuthContext } from "../Context/UserContext";
 
+import videos from "../assets/videos";
+import AdaptiveRowPost from "../componets/RowPost/AdaptiveRowPost";
+
 function Home() {
   const { User } = useContext(AuthContext);
   const [watchedMovies, setWatchedMovies] = useState([]);
@@ -36,6 +39,7 @@ function Home() {
     <div>
       <Banner url={trending}></Banner>
       <div className="w-[99%] ml-1">
+        <AdaptiveRowPost title="Adaptive Streaming" videos={videos} />
         <RowPost first title="Trending" url={trending} key={trending}></RowPost>
         <RowPost title="Animated" url={Animated} key={Animated}></RowPost>
         {watchedMovies.length != 0 ? (
