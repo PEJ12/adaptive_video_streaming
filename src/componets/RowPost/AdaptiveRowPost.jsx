@@ -10,7 +10,7 @@ function AdaptiveRowPost({ title, videos }) {
   const nav = useNavigate();
 
   return (
-    <div className="ml-2 lg:ml-11 mb-11 lg:mb-4 RowContainer">
+    <div className="ml-2 lg:ml-11 mb-32 RowContainer">
       {/* 제목 */}
       <div className="flex justify-between items-center pb-4 xl:pb-0">
         <h1 className="text-white font-normal text-base sm:text-2xl md:text-4xl">
@@ -70,7 +70,6 @@ function AdaptiveRowPost({ title, videos }) {
                   />
                 </svg>
               </div>
-              <h3 className="text-white mt-2 text-sm">{video.title}</h3>
             </div>
           </SwiperSlide>
         ))}
