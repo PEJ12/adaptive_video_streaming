@@ -39,7 +39,7 @@ function AdaptiveRowPost({ title, videos }) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const route = `/adaptive-play/1/${video.id}`;
+                const route = `/adaptive-play/${video.id}`;
                 console.log("🖱️ 썸네일 클릭됨:", video.title);
                 console.log("➡️ 이동 경로:", route);
                 console.log("🎯 manifest URL:", video.manifest);

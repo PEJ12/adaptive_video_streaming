@@ -51,7 +51,7 @@ function App() {
             </>
           ) : null}
           <Route path="/play/:id" element={<Play />} />
-          <Route path="/adaptive-play/:profileId/:videoId" element={<PlayerPage />} />
+          <Route path="/adaptive-play/:videoId" element={<PlayerPage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<ErrorPage />} />
