@@ -1,3 +1,5 @@
+//Adaptive Streaming Player Page
+
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import vids from '../assets/videos.js'

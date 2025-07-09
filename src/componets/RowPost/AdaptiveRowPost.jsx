@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,9 +11,12 @@ function AdaptiveRowPost({ title, videos }) {
 
   return (
     <div className="ml-2 lg:ml-11 mb-11 lg:mb-4 RowContainer">
-      <h1 className="text-white pb-4 xl:pb-0 font-normal text-base sm:text-2xl md:text-4xl">
-        {title}
-      </h1>
+      {/* 제목 */}
+      <div className="flex justify-between items-center pb-4 xl:pb-0">
+        <h1 className="text-white font-normal text-base sm:text-2xl md:text-4xl">
+          {title}
+        </h1>
+      </div>
 
       <Swiper
         breakpoints={{
@@ -34,15 +36,24 @@ function AdaptiveRowPost({ title, videos }) {
           <SwiperSlide key={video.id} className="bg-cover">
             <div
               className="group relative cursor-pointer"
-              onClick={() => nav(`/player/${video.id}`)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const route = `/adaptive-play/1/${video.id}`;
+                console.log("🖱️ 썸네일 클릭됨:", video.title);
+                console.log("➡️ 이동 경로:", route);
+                console.log("🎯 manifest URL:", video.manifest);
+                nav(route);
+              }}
             >
               <img
                 src={video.thumb || "/assets/default.jpg"}
                 alt={video.title}
-                className="rounded-sm"
-                onError={e => { e.target.src = "/assets/default.jpg"; }}
+                className="rounded-sm w-full h-auto"
+                onError={(e) => {
+                  e.target.src = "/assets/default.jpg";
+                }}
               />
-              {/* Hover시 Play 버튼 표시 */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-200 bg-black bg-opacity-40 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

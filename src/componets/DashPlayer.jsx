@@ -4,6 +4,8 @@ import './DashPlayer.css'
 export default function DashPlayer({ manifestUrl }) {
   const videoRef = useRef(null)
 
+  console.log("📼 manifestUrl", manifestUrl)
+
   useEffect(() => {
     const dashjs = window.dashjs
     if (!dashjs || typeof dashjs.MediaPlayer !== 'function') {
@@ -14,7 +16,6 @@ export default function DashPlayer({ manifestUrl }) {
     const player = dashjs.MediaPlayer().create()
     player.initialize(videoRef.current, manifestUrl, true)
 
-    // ABR 자동 품질 조정 활성화
     player.updateSettings({
       streaming: {
         abr: {
@@ -25,14 +26,12 @@ export default function DashPlayer({ manifestUrl }) {
       }
     })
 
-    // ✅ 중복 화질 로그 방지용 마지막 트랙 ID 기억
     let lastTrackId = null
 
     const logCurrentTrackInfo = (label) => {
       const currentTrack = player.getCurrentTrackFor('video')
       const rep = currentTrack?.bitrateList?.[0]
 
-      // ✅ 중복된 화질 선택이면 로그 찍지 않음
       if (label === 'QUALITY_CHANGE_RENDERED' && currentTrack?.id === lastTrackId) return
       lastTrackId = currentTrack?.id
 
@@ -46,20 +45,16 @@ export default function DashPlayer({ manifestUrl }) {
       }
     }
 
-    // ✅ 이벤트 리스너 등록
-
     player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (e) => {
       if (e.mediaType !== 'video') return
 
-      const fromHeight = e.oldRepresentation?.height ?? 'unknown';
-      const toHeight = e.newRepresentation?.height ?? 'unknown';
-      const fromBw = e.oldRepresentation?.bandwidth ?? 'unknown';
-      const toBw = e.newRepresentation?.bandwidth ?? 'unknown';
+      const fromHeight = e.oldRepresentation?.height ?? 'unknown'
+      const toHeight = e.newRepresentation?.height ?? 'unknown'
+      const fromBw = e.oldRepresentation?.bandwidth ?? 'unknown'
+      const toBw = e.newRepresentation?.bandwidth ?? 'unknown'
 
-      console.log(`🟡 [QUALITY_CHANGE_REQUESTED] From ${fromHeight}p (${fromBw}bps) → ${toHeight}p (${toBw}bps)`);
+      console.log(`🟡 [QUALITY_CHANGE_REQUESTED] From ${fromHeight}p (${fromBw}bps) → ${toHeight}p (${toBw}bps)`)
     })
-
-
 
     player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
       logCurrentTrackInfo('STREAM_INITIALIZED')

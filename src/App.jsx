@@ -1,5 +1,6 @@
 import { useEffect, useContext, lazy, Suspense } from "react";
 import "./App.css";
+import PlayerPage from './Pages/PlayerPage'
 
 const Home = lazy(() => import("./Pages/Home"));
 const Series = lazy(() => import("./Pages/Series"));
@@ -50,7 +51,7 @@ function App() {
             </>
           ) : null}
           <Route path="/play/:id" element={<Play />} />
-          
+          <Route path="/adaptive-play/:profileId/:videoId" element={<PlayerPage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<ErrorPage />} />
