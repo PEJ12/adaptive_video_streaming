@@ -93,7 +93,7 @@ function SignUp() {
                 <h1 className="text-xl font-bold leading-tight tracking-tight text-white md:text-2xl dark:text-white">
                   Create a new account
                 </h1>
-                <h1 className="text-white text-2xl p-3 text-center border-2 border-red-700 rounded-sm">
+                <h1 className="text-white text-2xl p-3 text-center border-2 border-blue-700 rounded-sm">
                   Not Real Netflix
                 </h1>
                 <form
@@ -115,7 +115,7 @@ function SignUp() {
                       id="email"
                       className={
                         ErrorMessage
-                          ? "bg-stone-700 text-white sm:text-sm rounded-sm border-2 border-red-700 focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:text-white "
+                          ? "bg-stone-700 text-white sm:text-sm rounded-sm border-2 border-blue-700 focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:text-white "
                           : "bg-stone-700 text-white sm:text-sm rounded-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:text-white "
                       }
                       placeholder="name@emil.com"
@@ -137,7 +137,7 @@ function SignUp() {
                       placeholder="••••••••"
                       className={
                         ErrorMessage
-                          ? "bg-stone-700 text-white sm:text-sm rounded-sm border-2 border-red-700 focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                          ? "bg-stone-700 text-white sm:text-sm rounded-sm border-2 border-blue-700 focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                           : "bg-stone-700 text-white sm:text-sm rounded-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:text-white"
                       }
                       required=""
@@ -145,7 +145,7 @@ function SignUp() {
                   </div>
                   <div>
                     {ErrorMessage && (
-                      <h1 className="flex text-white font-bold p-4 bg-red-700 rounded text-center">
+                      <h1 className="flex text-white font-bold p-4 bg-blue-700 rounded text-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -188,7 +188,7 @@ function SignUp() {
                     className={`w-full text-white ${
                       loader
                         ? `bg-stone-700`
-                        : `bg-red-800 focus:ring-4 focus:outline-none focus:ring-primary-300`
+                        : `bg-blue-800 focus:ring-4 focus:outline-none focus:ring-primary-300`
                     } font-medium rounded-sm text-sm px-5 py-2.5 text-center`}
                   >
                     {loader ? <ClipLoader color="#ff0000" /> : "Create now"}

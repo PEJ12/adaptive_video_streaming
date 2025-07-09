@@ -167,7 +167,7 @@ function Profile() {
                 src={
                   profilePic
                     ? `${profilePic}`
-                    : `https://www.citypng.com/public/uploads/preview/profile-user-round-red-icon-symbol-download-png-11639594337tco5j3n0ix.png`
+                    : `https://www.citypng.com/public/uploads/preview/profile-user-round-blue-icon-symbol-download-png-11639594337tco5j3n0ix.png`
                 }
                 alt="NETFLIX"
               />
@@ -263,7 +263,7 @@ function Profile() {
             <div className="flex justify-between mt-4">
               <button
                 onClick={SignOut}
-                className="flex items-center border-[0.7px] border-white text-white font-medium sm:font-bold text-xs px-14 md:px-24 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:border-white hover:text-red-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
+                className="flex items-center border-[0.7px] border-white text-white font-medium sm:font-bold text-xs px-14 md:px-24 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:border-white hover:text-blue-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -284,7 +284,7 @@ function Profile() {
               {userName != "" || newProfielPic != "" ? (
                 <button
                   onClick={changeUserName}
-                  className="flex items-center bg-red-700 text-white font-medium sm:font-bold text-xs px-10 md:px-16 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:text-red-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
+                  className="flex items-center bg-blue-700 text-white font-medium sm:font-bold text-xs px-10 md:px-16 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:text-blue-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -305,7 +305,7 @@ function Profile() {
               ) : (
                 <button
                   onClick={() => navigate("/")}
-                  className="flex items-center bg-red-700 text-white font-medium sm:font-bold text-xs px-10 md:px-16 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:text-red-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
+                  className="flex items-center bg-blue-700 text-white font-medium sm:font-bold text-xs px-10 md:px-16 md:text-xl  py-3 rounded shadow hover:shadow-lg hover:bg-white hover:text-blue-700 outline-none focus:outline-none mr-3 mb-1 ease-linear transition-all duration-150"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
