@@ -71,7 +71,7 @@ function Navbar(props) {
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <img
-                    className="h-19 cursor-pointer w-36"
+                    className="h-20 cursor-pointer w-36.2"
                     src={PNUPLAYLogo}
                     alt="PNUPLAY"
                   />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import PNUPLAYLogo from  "../../images/PNUPLAY_logo.png";
 
 function NavbarWithoutUser() {
   const [show, handleShow] = useState(false);
@@ -27,9 +28,10 @@ function NavbarWithoutUser() {
       >
         <div className="w-9/12 md:w-11/12">
           <img
-            className="h-8 sm:h-10 sm:w-18 ml-8 cursor-pointer"
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1920px-Netflix_2015_logo.svg.png"
-            alt="NETFLIX"
+            //className="h-8 sm:h-10 sm:w-18 ml-8 cursor-pointer"
+            className="h-20 cursor-pointer w-36.2"
+            src={PNUPLAYLogo}
+            alt="PNU PLAY"
           />
         </div>
 
