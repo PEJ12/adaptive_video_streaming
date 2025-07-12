@@ -19,11 +19,9 @@ from tensorflow.keras.losses import mse
 import joblib
 
 # 모델 로드
-model_path = r"optimal_param_prediction_model.h5"
-print("모델 경로:", model_path)
-model = load_model(model_path, custom_objects={'mse': mse})
-scaler_X = joblib.load("scaler_X.pkl")
-scaler_y = joblib.load("scaler_y.pkl")
+model = joblib.load("v3_rf_model.pkl")
+scaler_X = joblib.load("v3_scaler_X.pkl")
+scaler_y = joblib.load("v3_scaler_y.pkl")
 
 # ffmpeg 실행 경로 (환경에 맞게 수정)
 ffmpeg_path = r"C:\ffmpeg-2025-06-04-git-a4c1a5b084-essentials_build\bin\ffmpeg.exe"
