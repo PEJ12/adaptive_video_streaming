@@ -19,7 +19,7 @@ function useUpdateWatchedMovies() {
       movies: arrayUnion(movie),
     });
   };
-
+  // WatchedMovies 목록에서 특정 영화를 제거하는 함수
   const removeFromWatchedMovies = (movie) => {
     updateDoc(doc(db, "WatchedMovies", User.uid), {
       movies: arrayRemove(movie),

@@ -16,7 +16,7 @@ import WelcomePageBanner from "../images/WelcomePageBanner.jpg";
 
 function SignUp() {
   const { User, setUser } = useContext(AuthContext);
-
+  //사용자가 입력한 이메일과 비밀번호를 저장할 상태 변수
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [ErrorMessage, setErrorMessage] = useState("");
@@ -24,20 +24,28 @@ function SignUp() {
 
   const navigate = useNavigate();
 
+  //회원가입 버튼을 클릭했을 때 실행되는 함수
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoader(true);
+    e.preventDefault(); //폼 기본 제출 막기
+    setLoader(true); //로딩 상태 활성화
 
+    // Firebase Authentication을 사용하여 회원가입 처리
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then((userCredential) => { //성공하면 userCredential 객체 반환
         // Signed in
+        //회원가입 이후, 사용자가 실제 로그인된 상태인지 확인하기 위해 onAuthStateChanged 사용
         onAuthStateChanged(auth, (user) => {
           const EmptyArray = [];
+          // Firestore에 사용자의 정보(email, uid)를 저장
           setDoc(doc(db, "Users", user.uid), {
             email: email,
             Uid: user.uid,
           }).then(() => {
+            // MyList, WatchedMovies, LikedMovies 컬렉션에 빈 배열로 초기화
+            // 사용자 전용 영화 목록을 초기화
+            // 각 문서에는 movies: [] 형식으로 빈 배열이 들어가며,
+            // 나중에 사용자가 영화를 추가하거나 삭제할 수 있도록 설정
             setDoc(
               doc(db, "MyList", user.uid),
               {
@@ -65,9 +73,13 @@ function SignUp() {
 
         const user = userCredential.user;
         if (user != null) {
-          navigate("/");
+          navigate("/"); //회원가입 성공 후 홈으로 이동
         }
       })
+
+      //createUserWithEmailAndPassword() 실패 시 에러 처리
+      //에러 예시 : 이미 가입된 이메일, 비밀번호 6자 미만,
+      //이메일 형식 아님, 이메일 입력 안함
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
@@ -94,7 +106,7 @@ function SignUp() {
                   Create a new account
                 </h1>
                 <h1 className="text-white text-2xl p-3 text-center border-2 border-blue-700 rounded-sm">
-                  Not Real Netflix
+                  PNUPLAY
                 </h1>
                 <form
                   onSubmit={handleSubmit}

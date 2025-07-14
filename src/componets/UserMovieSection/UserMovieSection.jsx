@@ -28,48 +28,65 @@ function UserMovieSection(props) {
   const { playMovie } = usePlayMovie();
   const { convertGenere } = useGenereConverter();
 
+  //myMovies는 사용자의 영상 목록을 저장하는 상태 변수
+  //moviePopupInfo는 팝업에 표시할 영상 정보를 저장하는 상태 변수
+  //setMyMovies : 상태를 변경할 때 사용하는 함수 (업데이트 용)
+  //useState : 초기상태 값/ 빈 배열
   const [myMovies, setMyMovies] = useState([]);
   const [moviePopupInfo, setMoviePopupInfo] = useState({});
   const [title, setTitle] = useState("");
   const [isResultEmpty, setIsResultEmpty] = useState(false);
 
   const navigate = useNavigate();
+// 예를 들어 const [count, setCount] = useState(0); 일때
+// count라는 숫자 상태를 만들고, setCount(1) 하면 값을 1로 업데이트
+
+// 예시: MyList에서 사용자 uid = abc123인 문서를 가져오는 경우
+// getDoc(doc(db, "MyList", "abc123"))
 
   function getMovies() {
     getDoc(doc(db, props.from, User.uid)).then((result) => {
+      //Firestore에서 문서 데이터를 성공적으로 가져오면, 그 결과가 result에 들어온다.
+      //result.data()로 문서 안의 데이터를 추출
       const mv = result.data();
-      setMyMovies(mv.movies);
-      if (mv.movies.length == 0) {
-        setIsResultEmpty(true);
+      setMyMovies(mv.movies); // mv.movies는 배열로, 사용자의 영화 목록을 저장
+      if (mv.movies.length == 0) { //영화 목록이 비어있다면
+        setIsResultEmpty(true); //영화 목록이 비어있음을 나타내는 상태를 true로 설정
+        // 이 상태는 나중에 "No Movies Present" 메시지를 표시하는데 사용
       }
     });
   }
-
+  //useEffect : 컴포넌트 생명주기 중 특정 시점에 동작
   useEffect(() => {
     getMovies();
     if (props.from === "MyList") {
-      setTitle("Movies in My List");
+      setTitle("Movies in My List"); //리스트 종류에 맞는 제목 설정 -> 화면에 보여짐
     } else if (props.from === "WatchedMovies") {
       setTitle("Watched Movies");
     } else if (props.from === "LikedMovies") {
       setTitle("Movies you Liked");
     }
-  }, []);
-
+  }, []); // [] : 컴포넌트가 처음 실행될 때만 실행
+  // 매개변수로 movie 받아서 삭제
   const removeMovie = (movie) => {
     if (props.from === "MyList") {
-      removeFromMyList(movie);
+      removeFromMyList(movie); 
     } else if (props.from === "WatchedMovies") {
       removeFromWatchedMovies(movie);
+      //"WatchedMovies"가 from이라는 이름의 props로 전달된 값(부모가 자식에게 전달하는 값)
+      //movies 배열에서 해당 movie를 제거
+      //성공 , 실패 메세지 나옴
     } else if (props.from === "LikedMovies") {
       removeFromLikedMovies(movie);
     }
-    getMovies();
+    getMovies(); //삭제 이후 다시 영화 목록을 가져와서 업데이트
+    //중요 : 삭제 이후에 myMovies 상태를 최신화하지 않으면 UI에 반영되지 않음
   };
 
+  //사용자가 영화를 클릭했을때, 팝업에 영화 정보를 표시
   const handleMoviePopup = (movieInfo) => {
-    setMoviePopupInfo(movieInfo);
-    setShowModal(true);
+    setMoviePopupInfo(movieInfo); // 영화 정보를 팝업 상태에 저장
+    setShowModal(true); 
   };
 
   return (

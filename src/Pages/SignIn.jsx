@@ -30,16 +30,17 @@ function SignIn() {
     setLoader(true);
 
     const auth = getAuth();
+    // Firebase Authentication을 사용하여 로그인 처리
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
+        // Signed in (성공시)
+        const user = userCredential.user; // user 객체 반환
         console.log(user);
         if (user != null) {
-          navigate("/");
+          navigate("/"); //로그인 성공 후 홈으로 이동
         }
       })
-      .catch((error) => {
+      .catch((error) => { //로그인 실패시 에러 처리
         const errorCode = error.code;
         const errorMessage = error.message;
         setErrorMessage(error.message);
@@ -49,25 +50,29 @@ function SignIn() {
       });
   };
 
+  // Google 로그인 처리
   const loginWithGoogle = (e) => {
     e.preventDefault();
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
 
+    // Google 로그인 팝업을 사용하여 로그인 처리
     signInWithPopup(auth, provider)
-      .then((result) => {
+      .then((result) => { //로그인 성공
         const user = result.user;
         console.log(user);
         const EmptyArray = [];
 
-        setDoc(
+        //로그인 성공 후, Firestore에 사용자 정보 저장 
+        //(회원가입을 안하고 구글 인증만 했으므로 사용자 정보를 저장하는것.)
+        setDoc( 
           doc(db, "Users", user.uid),
           {
             email: user.email,
             Uid: user.uid,
           },
           { merge: true }
-        ).then(() => {
+        ).then(() => { //로그인 성공했는데 MyList가 없을때 (구글 로그인 처음 이용시에만 리스트 3개 초기화)
           getDoc(doc(db, "MyList", user.uid)).then((result) => {
             if (result.exists()) {
               // Data exist in MyList section for this user
@@ -100,10 +105,10 @@ function SignIn() {
           });
         });
         if (user != null) {
-          navigate("/");
+          navigate("/"); //로그인 성공 후 홈으로 이동
         }
       })
-      .catch((error) => {
+      .catch((error) => { //로그인 실패시 에러 처리
         const errorCode = error.code;
         const errorMessage = error.message;
         setErrorMessage(error.message);

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import './DashPlayer.css'
-
+//dash.js 초기화 → 브라우저에서 manifest.mpd와 m4s 파일 받아와 스트리밍
+//적응형 스트리밍 관련 파일 : App.jsx, PlayerPage.jsx, videos.js, DashPlayer.jsx, Home.jsx, AdaptiveRowPost.jsx
 export default function DashPlayer({ manifestUrl }) {
   const videoRef = useRef(null)
 
@@ -15,7 +16,7 @@ export default function DashPlayer({ manifestUrl }) {
 
     const player = dashjs.MediaPlayer().create()
     player.initialize(videoRef.current, manifestUrl, true)
-
+    //ABR 자동 품질 조정 활성화
     player.updateSettings({
       streaming: {
         abr: {

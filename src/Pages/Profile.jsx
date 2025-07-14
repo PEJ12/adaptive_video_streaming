@@ -19,6 +19,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 function Profile() {
+  //User는 Firebase에서 로그인한 사용자 정보를 담고 있다.
   const { User } = useContext(AuthContext);
 
   const [profilePic, setProfilePic] = useState("");
@@ -30,10 +31,11 @@ function Profile() {
 
   const navigate = useNavigate();
 
+  //로그인 된 사용자의 프로필 사진을 상태에 저장하는 초기 실행 코드
   useEffect(() => {
-    if (User != null) {
+    if (User != null) { //User : 현재 로그인 된 사용자 정보
       console.log(User.photoURL, "hello");
-      setProfilePic(User.photoURL);
+      setProfilePic(User.photoURL); 
     }
   }, []);
 
@@ -47,61 +49,77 @@ function Profile() {
     toast.success("  Data Updated Sucessfuly  ");
   }
 
+  //사용자가 프로필 사진 직접 선택했을 때 파일 객체와 미리보기 url을 상태에 저장하는 함수
+  //실행 시점 : 사진 선택 즉시 (즉, 상태 저장, 이미지 미리보기)
   const handleFileChange = (event) => {
-    const fileObj = event.target.files[0];
-    setNewProfielPic(fileObj);
-    setNewProfielPicURL(URL.createObjectURL(fileObj));
-    if (!fileObj) {
-      return;
+    const fileObj = event.target.files[0]; //사용자가 선택한 파일 객체
+    setNewProfielPic(fileObj); //파일 객체를 newProfilePic 상태에 저장
+    // 새로 선택한 이미지의 URL을 생성하여 상태에 저장 (브라우저 미리보기 위해)
+    //URL.createObjectURL(file)은 해당 파일을 웹 주소처럼 표시할 수 있게 해준다.
+    setNewProfielPicURL(URL.createObjectURL(fileObj)); 
+    if (!fileObj) { //사용자가 아무 파일도 선택하지 않았을때
+      return; //함수 종료
     }
-    console.log("fileObj is", fileObj);
-    event.target.value = null;
+    console.log("fileObj is", fileObj); // 선택한 파일 정보 콘솔에 출력
+    //동일한 파일을 다시 업로드하려고 할 때도 onChange 이벤트가 발생하게 하려는 처리
+    event.target.value = null; //파일 선택 후 input 초기화
   };
 
+
+  //사용자가 프로필 이름을 변경하려고 할 때, 해당 이름을 firebase auth에 업데이트하는 함수
   const changeUserName = (e) => {
-    e.preventDefault();
-    if (isUserNameChanged) {
-      if (userName !== "") {
+    e.preventDefault(); 
+    if (isUserNameChanged) { //사용자가 입력창에 뭔가를 입력했는지 확인  
+      if (userName !== "") { //사용자 이름 업데이트
         const auth = getAuth();
+        //현재 로그인 된 사용자를 가져와서 새 이름으로 업데이트.
         updateProfile(auth.currentUser, { displayName: userName })
           .then(() => {
-            notify();
+            notify(); //성공 메세지
           })
           .catch((error) => {
-            alert(error.message);
+            alert(error.message); //에러 메세지
           });
-      } else {
+      } else { //변경된 이름이 없으면 상태 초기화
         setIsUserNameChanged(false);
       }
     }
 
-    if (newProfielPic != "") {
+    // 선택한 사진 업로드 후 프로필 사진 업데이트
+    if (newProfielPic != "") { //사용자가 새로 프로필 이미지 선택하면
       const storage = getStorage();
       const storageRef = ref(storage, `/ProfilePics/${User.uid}`);
+      // Firebase Storage에 새 프로필 사진 업로드
       const uploadTask = uploadBytesResumable(storageRef, newProfielPic);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
+      uploadTask.on( //업로드 상태 모니터링
+        "state_changed", 
+        (snapshot) => { //진행률 계산
           const prog = Math.round(
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           );
         },
-        (error) => {
+        (error) => { //에러 메세지
           alert(error.message);
           alert(error.code);
         },
-        () => {
+        () => { //파일 업로드 완료 후 실제 접근 URL 가져오기
+          // 이름 변경 함수 안에 사진 변경도 같이 있는 이유 : 
+          // save and continue 버튼을 클릭했을 때, 이름과 사진을 동시에 저장
+
+          // 이 때 url은 사용자가 직접 고른 파일을 Firebase Storage에
+          // 업로드한 후, 그 업로드된 이미지의 다운로드 URL
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             console.log(url, "This is the new Url for Profile Pic");
             setProfilePic(url);
             const auth = getAuth();
+            //Firebase Authentication의 사용자 정보 중 photoURL 값을 새로 받은 이미지 주소로 업데이트
             updateProfile(auth.currentUser, { photoURL: url })
-              .then(() => {
-                notify();
+              .then(() => { 
+                notify(); //성공메세지
                 setisMyListUpdated(true);
               })
-              .catch((error) => {
+              .catch((error) => { //에러 메세지
                 alert(error.message);
               });
           });
@@ -109,26 +127,32 @@ function Profile() {
       );
     }
   };
-
+  //기본 아바타 4개 사진은 이 함수만 실행.
+  // 업로드 파일의 url이나 기본 4개 사진의 url 받아와서 프로필에 반영   
+  //이미지url을 firebase auth에 업데이트하는 함수
+  //save and continue 버튼을 클릭했을 때 호출된다. (프로필이 4개에서 5개로 추가되는 게 아니고 자기 프로필 사진만 바뀜)
   const updateProfilePic = (imageURL) => {
     const auth = getAuth();
+    //auth.currentUser는 현재 로그인된 사용자 정보를 나타낸다.
+    // User 중 photoURL 값을 새로 지정된 이미지 주소로 업데이트
     updateProfile(auth.currentUser, { photoURL: imageURL })
-      .then(() => {
+      .then(() => { //성공시 상태 업데이트
         setProfilePic(User.photoURL);
-        notify();
+        notify(); //성공 메세지
       })
       .catch((error) => {
-        alert(error.message);
+        alert(error.message); //에러 메세지
       });
   };
 
+  //로그아웃
   const SignOut = () => {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
-        navigate("/");
+        navigate("/"); //성공시 홈화면 이동
       })
-      .catch((error) => {
+      .catch((error) => { //실패시 에러 메세지
         alert(error.message);
       });
   };
