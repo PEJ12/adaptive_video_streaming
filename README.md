@@ -1,14 +1,16 @@
-## 은재 ver 최초 기능 구현 코드 실행시 참고 (feature1 branch에 등록)
-준비 : FlaskAPI 설치 / FFmpeg 깔고 시스템 PATH에 등록
-(encode.py 코드에 ffmpeg_path로 실행경로 잘 넣어주기! 사람마다 다를 것)
-https://velog.io/@tjdwjdgus99/ffmpeg-%EC%82%AC%EC%9A%A9%EB%B2%95 참고
+## 웹사이트 실행
+
+[준비사항]
+1. Netflix 폴더에서 npm install 해주기. 이거 에러나면 npm install --legacy-peer-deps 하기
+
+2. Netflix 안에 .env 파일 만들기 (파일 이름 : .env , 내용 :  TMDB API 키  ) 
 
 [실행순서] 
-1. server의 encode.py 실행시켜서 영상 3개 인코딩하고 segment랑 mpd 파일 생성  
-2. 터미널에서 실행 (server)
-cd server
-python -m uvicorn main:app --reload
-3. index.html 파일 Live Server로 실행
+1. 서버 폴더 이동 후
+2. python -m uvicorn main:app --reload
+3. Netflix 폴더 이동 후
+4. npm run dev
+
 
 
 
