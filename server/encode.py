@@ -36,7 +36,6 @@ def split_video_to_segments(input_path, segment_dir, segment_length=10):
     subprocess.run(cmd, check=True)
     return sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")])
 
-
 def split_video_to_segments_reencode(input_path, segment_dir, segment_length=10):
     """
     정확히 segment_length(초) 단위로 영상을 재인코딩하여 세그먼트 분할
@@ -374,14 +373,16 @@ def generate_single_mpd(output_dir, num_segments, segment_duration, last_segment
         timeline = SubElement(segment_template, "SegmentTimeline")
         
         # 일반 세그먼트
-        SubElement(timeline, "S", {
-            "t": "0",
-            "d": str(segment_duration_ticks),
-            "r": str(num_segments - 2)
-        })
+        for i in range(num_segments - 1):
+            SubElement(timeline, "S", {
+                "t": str(i * segment_duration_ticks),
+                "d": str(segment_duration_ticks),
+            })
         # 마지막 세그먼트 (길이가 짧을 수 있음)
+        last_ticks = int(last_segment_duration * timescale)
         SubElement(timeline, "S", {
-            "d": str(last_seg_ticks)
+            "t": str((num_segments - 1) * segment_duration_ticks),
+            "d": str(last_ticks)
         })
 
     # 저장
