@@ -308,7 +308,7 @@ def run_dash_generation(sh_path):
     else:
         print("[✅] DASH 세그먼트 생성 완료")
 
-def generate_single_mpd(output_dir, num_segments, segment_duration, last_segment_duration, timescale=24000):
+def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment_duration):
     print("[📄] MPD 파일 생성 중...")
 
     rep_settings = [
@@ -317,7 +317,7 @@ def generate_single_mpd(output_dir, num_segments, segment_duration, last_segment
         {"id": 2, "width": 1280, "height": 720,  "bandwidth": 2000000, "codecs": "avc1.64001f", "sar": "1:1"},
         {"id": 3, "width": 1920, "height": 1080, "bandwidth": 3000000, "codecs": "avc1.640028", "sar": "1:1"}
     ]
-
+    timescale=24000
     segment_duration_ticks = int(segment_duration * timescale)
     last_seg_ticks = int(last_segment_duration * timescale)
     total_ticks = (num_segments - 1) * segment_duration_ticks + last_seg_ticks
@@ -378,6 +378,7 @@ def generate_single_mpd(output_dir, num_segments, segment_duration, last_segment
                 "t": str(i * segment_duration_ticks),
                 "d": str(segment_duration_ticks),
             })
+            
         # 마지막 세그먼트 (길이가 짧을 수 있음)
         last_ticks = int(last_segment_duration * timescale)
         SubElement(timeline, "S", {
