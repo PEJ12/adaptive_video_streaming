@@ -43,6 +43,8 @@ def generate_single_mpd(output_dir, num_segments, segment_duration=10):
             "startNumber": "0",
             "duration": str(segment_duration * 1000)  # ms
         })
+        
+    return mpd
 
 def pretty_print_xml(elem: ET.Element, output_path: str):
     """ElementTree XML을 예쁘게 출력 (들여쓰기 적용)"""
@@ -64,3 +66,4 @@ if __name__ == "__main__":
     mpd_path = os.path.join(output_dir, "manifest.mpd")
     pretty_print_xml(mpd_elem, mpd_path)
     print(f"[✅] MPD 파일 생성 완료: {mpd_path}")
+    

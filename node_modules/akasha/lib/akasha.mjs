@@ -1,0 +1,137 @@
+import cookies from 'es-cookies';
+import esMd5 from 'es-md5';
+
+// src/cookie-storage.coffee
+var cookieStorage = (function() {
+  var key;
+  key = function(k) {
+    return "" + k;
+  };
+  return {
+    get: function(k) {
+      return cookies.getJSON(key(k));
+    },
+    set: function(k, v, opts) {
+      var ks, ref;
+      ks = (ref = cookies.getJSON(key('_keys'))) != null ? ref : [];
+      ks.push(k);
+      cookies.set(key('_keys'), ks);
+      return cookies.set(key(k, opts), v);
+    },
+    remove: function(k) {
+      return cookies.remove(key(k));
+    },
+    clear: function() {
+      var i, k, ks, len, ref;
+      ks = (ref = cookies.getJSON(key('_keys'))) != null ? ref : [];
+      for (i = 0, len = ks.length; i < len; i++) {
+        k = ks[i];
+        cookies.remove(k);
+      }
+      return cookies.remove(key('_keys'));
+    }
+  };
+})();
+
+// src/storage.coffee
+var storage = function(backend) {
+  var err, root, store;
+  root = typeof window === 'undefined' ? global : window;
+  try {
+    store = root[backend + 'Storage'];
+  } catch (error) {
+    return {
+      get: function() {
+        return void 0;
+      },
+      set: function() {
+        return void 0;
+      },
+      remove: function() {
+        return void 0;
+      },
+      clear: function() {
+        return void 0;
+      }
+    };
+  }
+  return {
+    get: function(k) {
+      try {
+        return JSON.parse(store.getItem(k));
+      } catch (error) {
+        console.error('Unable to parse', k);
+        return void 0;
+      }
+    },
+    set: function(k, v, opts) {
+      return store.setItem(k, JSON.stringify(v));
+    },
+    remove: function(k) {
+      return store.removeItem(k);
+    },
+    clear: function() {
+      return store.clear();
+    }
+  };
+};
+
+// src/local-storage.coffee
+var localStorage = storage('local');
+
+// src/pretend-storage.coffee
+var pretendStorage = (function() {
+  var key, pretendStorage;
+  pretendStorage = {};
+  key = function(k) {
+    return "" + k;
+  };
+  return {
+    get: function(k) {
+      return pretendStorage[key(k)];
+    },
+    set: function(k, v, opts) {
+      return pretendStorage[key(k)] = v;
+    },
+    remove: function(k) {
+      return delete pretendStorage[key(k)];
+    },
+    clear: function() {
+      var results;
+      results = [];
+      for (key in pretendStorage) {
+        results.push(delete pretendStorage[key(k)]);
+      }
+      return results;
+    }
+  };
+})();
+
+// src/index.coffee
+var supported;
+
+supported = function(storage) {
+  var err, ok, testStr;
+  try {
+    testStr = '__akasha__test__';
+    storage.set(testStr, testStr);
+    ok = (storage.get(testStr)) === testStr;
+    storage.remove(testStr);
+    return ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+var index = (function() {
+  if (supported(localStorage)) {
+    return localStorage;
+  } else if (supported(cookieStorage)) {
+    return cookieStorage;
+  } else {
+    return pretendStorage;
+  }
+})();
+
+export default index;
+//# sourceMappingURL=akasha.mjs.map
