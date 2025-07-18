@@ -1,0 +1,17 @@
+
+.dash-container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;               /* 가로 중앙 정렬 */
+  background: #000;             /* 영상 뒤 검정 배경 */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dash-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #000;             /* 포스터 없는 구간용 배경 */
+}
