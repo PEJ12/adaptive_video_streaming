@@ -2,11 +2,14 @@
 #3개의 mp4 영상을 읽어서, 각각에 대해 4개 해상도(360p, 480p, 720p, 1080p)로
 #인코딩을 하고, DASH 스트리밍용 MPD + 세그먼트들을 생성
 
+#huskey 영상만 인코딩 하게 되어있음 
+#video_files = ["husky.mp4"]
+
 #실행순서
-#encode.py 실행 후 
+#python3 encode.py 로 실행. F5 말고, 터미널로 하기
 #cd server
-#python -m uvicorn main:app --reload
-#index.html 을 live server로 실행
+#python3 -m uvicorn main:app --reload
+#Netflix 폴더에서 npm run dev 실행
 
 # -*- coding: utf-8 -*-
 
@@ -21,6 +24,27 @@ import glob
 from collections import Counter
 import re
 from xml.etree.ElementTree import Element, SubElement, ElementTree
+
+# 함수 추가(은재)
+def get_valid_segments(segment_dir, min_duration=1.0):
+    segments = sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")], key=extract_number)
+    valid_segments = []
+    for seg in segments:
+        # ffprobe로 길이 측정
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            seg
+        ]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        duration = float(result.stdout.strip())
+        if duration >= min_duration:
+            valid_segments.append(seg)
+        else:
+            print(f"[SKIP] {os.path.basename(seg)} 너무 짧음({duration:.2f}s) → 제외")
+    return valid_segments
 
 def split_video_to_segments(input_path, segment_dir, segment_length=10):
     segment_pattern = os.path.join(segment_dir, "segment_%d.mp4")
@@ -308,7 +332,8 @@ def run_dash_generation(sh_path):
     else:
         print("[✅] DASH 세그먼트 생성 완료")
 
-def generate_single_mpd(output_dir, num_segments, segment_duration, last_segment_duration, timescale=24000):
+#매개변수 수정함!!(은재)
+def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment_duration=10, timescale=24000):
     print("[📄] MPD 파일 생성 중...")
 
     rep_settings = [
@@ -493,6 +518,7 @@ resolution = ["640x360", "854x480", "1280x720", "1920x1080"]
 segment_length = 10
 
 #video_files = os.listdir(input_dir)
+#huskey 영상만 인코딩 하게 되어있음
 video_files = ["husky.mp4"]
 
 for file in video_files:
@@ -553,4 +579,4 @@ for file in video_files:
     print(f"마지막 세그먼트({last_segment}) 길이: {last_duration:.2f}초")
     
     num_segments = len([f for f in os.listdir(os.path.join(video_dir, "segments"))])
-    generate_single_mpd(video_dir, num_segments, last_duration, 10)
+    generate_single_mpd(video_dir, num_segments, last_duration, segment_length)
