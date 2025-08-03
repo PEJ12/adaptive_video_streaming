@@ -31,14 +31,14 @@ import re
 
 
 INPUT_VIDEOS = [
-    ("news_v2", "../input/news_v2.mp4")
+    ("Sports", "../input/Sports.mp4")
 ]
 #INPUT_MP4 = "../input/husky.mp4"
 TMP_SEG_DIR = "./static/husky/segments"
 OUT_DIR = "./static/husky"
-MODEL_PATH = "./kinetics_rf_model.pkl"
-SCALER_X_PATH = "./kinetics_rf_scaler_X.pkl"
-SCALER_Y_PATH = "./kinetics_rf_scaler_y.pkl"
+MODEL_PATH = "./large_kinetics_rf_model.pkl"
+SCALER_X_PATH = "./large_kinetics_rf_scaler_X.pkl"
+SCALER_Y_PATH = "./large_kinetics_rf_scaler_y.pkl"
 MV_EXTRACT_PY = "./mv_extractor/extract_mvs.py"
 SEG_LEN = 10
 
@@ -52,7 +52,7 @@ resolutions = {
 resolution_tags = list(resolutions.keys())
 
 # 인코딩 파라미터 확인용 로그
-parameter_log_file = "./parameter_log.txt"
+parameter_log_file = "./large_parameter_log.txt"
 
 os.makedirs(TMP_SEG_DIR, exist_ok=True)
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -64,6 +64,7 @@ def ai_predict(feature_list, scaler_X, scaler_y, model):
     # feature_list는 이미 10개 특성이 정해진 순서로 담긴 리스트
     X_scaled = scaler_X.transform([feature_list])
     pred_scaled = model.predict(X_scaled)
+    print(pred_scaled)
     pred_scaled = pred_scaled.reshape(1, -1)
     pred_y = scaler_y.inverse_transform(pred_scaled)
     crf = round(pred_y[0, 0])
