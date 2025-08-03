@@ -19,12 +19,13 @@ from collections import Counter
 import glob
 import re
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_MP4 = "../input/husky.mp4"
 TMP_SEG_DIR = "./static/husky/segments"
 OUT_DIR = "./static/husky"
-MODEL_PATH = "./v3_rf_model.pkl"
-SCALER_X_PATH = "./v3_scaler_X.pkl"
-SCALER_Y_PATH = "./v3_scaler_y.pkl"
+MODEL_PATH = os.path.join(CURRENT_DIR, 'v3_rf_model.pkl')
+SCALER_X_PATH = os.path.join(CURRENT_DIR, 'v3_scaler_X.pkl')
+SCALER_Y_PATH = os.path.join(CURRENT_DIR, 'v3_scaler_y.pkl')
 MV_EXTRACT_PY = "./mv_extractor/extract_mvs.py"
 SEG_LEN = 10
 

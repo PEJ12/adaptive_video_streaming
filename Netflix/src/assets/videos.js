@@ -6,19 +6,19 @@ export default [
     id: 1,
     title: '영상 1',
     // 서버에서 제공하는 MPD manifest 경로
-    manifest: 'http://localhost:8000/stream/husky/manifest.mpd',
+    manifest: 'http://localhost:8000/stream/husky_encode10/manifest.mpd',
     thumb: '/assets/thumbs/video1.png', // 썸네일 이미지 경로
   },
   {
     id: 2,
     title: '영상 2',
-    manifest: 'http://localhost:8000/stream/Russian minister Roman Starovoit sacked by Putin found dead _ BBC News/manifest.mpd',
+    manifest: 'http://localhost:8000/stream/Sports/manifest.mpd',
     thumb: '/assets/thumbs/video2.png',
   },
   {
     id: 3,
     title: '영상 3',
-    manifest: 'http://localhost:8000/stream/lol/manifest.mpd',
+    manifest: 'http://localhost:8000/stream/news_v2/manifest.mpd',
     thumb: '/assets/thumbs/video3.png',
   }
 ]

@@ -31,14 +31,14 @@ import re
 
 
 INPUT_VIDEOS = [
-    ("husky_encode10", "../input/husky_encode10.mp4")
+    ("news_v2", "../input/news_v2.mp4")
 ]
 #INPUT_MP4 = "../input/husky.mp4"
 TMP_SEG_DIR = "./static/husky/segments"
 OUT_DIR = "./static/husky"
-MODEL_PATH = "./v3_rf_model.pkl"
-SCALER_X_PATH = "./v3_scaler_X.pkl"
-SCALER_Y_PATH = "./v3_scaler_y.pkl"
+MODEL_PATH = "./kinetics_rf_model.pkl"
+SCALER_X_PATH = "./kinetics_rf_scaler_X.pkl"
+SCALER_Y_PATH = "./kinetics_rf_scaler_y.pkl"
 MV_EXTRACT_PY = "./mv_extractor/extract_mvs.py"
 SEG_LEN = 10
 
@@ -52,11 +52,10 @@ resolutions = {
 resolution_tags = list(resolutions.keys())
 
 # 인코딩 파라미터 확인용 로그
-parameter_log_file = "./encode10_parameter_log.txt"
+parameter_log_file = "./parameter_log.txt"
 
 os.makedirs(TMP_SEG_DIR, exist_ok=True)
 os.makedirs(OUT_DIR, exist_ok=True)
-
 
 def ai_predict(feature_list, scaler_X, scaler_y, model):
     """
@@ -73,13 +72,14 @@ def ai_predict(feature_list, scaler_X, scaler_y, model):
 
 def extract_features(input_path, segment_motion_vector_dir):
     # 1. 모션벡터 추출
-    extract_script = "./mv_extractor/extract_mvs.py"
+    extract_script = "../mv_extractor/extract_mvs.py"
     cmd = [
         "python3", extract_script,
         input_path,
         "-d", segment_motion_vector_dir
     ]
     subprocess.run(cmd)
+    print("===================")
 
     # 2. 모션 벡터 통계
     csv_dir = os.path.join(segment_motion_vector_dir, "motion_vectors")
@@ -101,21 +101,22 @@ def extract_features(input_path, segment_motion_vector_dir):
         all_magnitudes.extend(df['magnitude'])
     if len(all_magnitudes) == 0:
         # 세그먼트가 너무 짧아서 벡터 없음
-        return [0.0]*10
+        return [0.0]*7
 
     motion_x_arr = np.array(all_magnitudes)
-    # 3. 프레임 비율 분석 (I/P/B)
-    frame_types_file = os.path.join(segment_motion_vector_dir, "frame_types.txt")
-    I_ratio = P_ratio = B_ratio = 0.0
-    if os.path.exists(frame_types_file):
-        with open(frame_types_file, 'r') as f:
-            frame_types = [line.strip() for line in f if line.strip()]
-        counts = Counter(frame_types)
-        total = len(frame_types)
-        if total > 0:
-            I_ratio = round(counts.get('I', 0)/total, 3)
-            P_ratio = round(counts.get('P', 0)/total, 3)
-            B_ratio = round(counts.get('B', 0)/total, 3)
+    
+    # # 3. 프레임 비율 분석 (I/P/B)
+    # frame_types_file = os.path.join(segment_motion_vector_dir, "frame_types.txt")
+    # I_ratio = P_ratio = B_ratio = 0.0
+    # if os.path.exists(frame_types_file):
+    #     with open(frame_types_file, 'r') as f:
+    #         frame_types = [line.strip() for line in f if line.strip()]
+    #     counts = Counter(frame_types)
+    #     total = len(frame_types)
+    #     if total > 0:
+    #         I_ratio = round(counts.get('I', 0)/total, 3)
+    #         P_ratio = round(counts.get('P', 0)/total, 3)
+    #         B_ratio = round(counts.get('B', 0)/total, 3)
     
     # 4. 매크로블록 비율 분석 (Intra/Inter/Skip)
     cmd = [
@@ -125,6 +126,7 @@ def extract_features(input_path, segment_motion_vector_dir):
         '-f', 'null',
         '-'
     ]
+    
     process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     stderr = process.stderr
     symbol_map = {'Intra': ['I', 'i'], 'Inter': ['d', '<', '>', 'X'], 'Skip': ['S']}
@@ -147,15 +149,13 @@ def extract_features(input_path, segment_motion_vector_dir):
         float(np.max(motion_x_arr)),    # max_magnitude
         float(np.std(motion_x_arr)),    # std_magnitude
         float(len(motion_x_arr)),       # motion_vector_count
-        I_ratio,                        # I_ratio
-        P_ratio,                        # P_ratio
-        B_ratio,                        # B_ratio
         Intra_ratio,                    # Intra
         Inter_ratio,                    # Inter
         Skip_ratio                      # Skip
     ]
+    print(features)
+    
     return features
-
 
 
 # (1) 세그먼트 분할 (한 번만, 예: 720p 기준)
@@ -192,19 +192,23 @@ def split_video(input_path, segment_dir, segment_length=10):
 # (3) AI 인코딩 + 해상도별 저장
 def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
     ai_segs_by_res = {tag: [] for tag in resolution_tags}
+    
     for i, seg_path in enumerate(seg_paths):
+        mv_dir = os.path.join(out_dir, f"mv_{seg_path}")
+        os.makedirs(mv_dir, exist_ok=True)
+        features = extract_features(seg_path, mv_dir)
+        
         for tag, res in resolutions.items():
             seg_name = f"ai_seg_{i}_{tag}.mp4"
             out_mp4 = os.path.join(out_dir, seg_name)
-            mv_dir = os.path.join(out_dir, f"mv_{i}_{tag}")
-            os.makedirs(mv_dir, exist_ok=True)
-            # --- AI 특징 추출 (1번만 추출해서 캐시 써도 됨, 여기서는 그냥 매번 추출)
-            features = extract_features(seg_path, mv_dir)
+            
+            # --- AI 특징 추출
             crf, maxrate = ai_predict(features, scaler_X, scaler_y, model)
             
             with open(parameter_log_file, "a") as f:  # 'a'는 append 모드 (기존 내용 뒤에 추가)
                 f.write(f"[AI인코딩] segment_{i} {tag}: CRF={crf}, maxrate={maxrate}\n")
             print(f"[AI인코딩] segment_{i} {tag}: CRF={crf}, maxrate={maxrate}")
+            
             # --- 인코딩 (해상도별)
             cmd = [
                 "ffmpeg", "-y", "-i", seg_path,
@@ -284,9 +288,11 @@ if __name__ == "__main__":
     scaler_y = joblib.load(SCALER_Y_PATH)
 
     for video_name, input_path in INPUT_VIDEOS:
+        
         print(f"\n=== [{video_name}] 영상 인코딩 시작 ===")
         with open(parameter_log_file, "a") as f:  # 'a'는 append 모드 (기존 내용 뒤에 추가)
             f.write(f"=== [{video_name}] 영상 인코딩 시작 ===")
+            
         # 각 영상별 출력 폴더 지정
         TMP_SEG_DIR = f"./static/{video_name}/segments"
         OUT_DIR = f"./static/{video_name}"
