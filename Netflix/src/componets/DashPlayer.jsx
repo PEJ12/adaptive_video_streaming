@@ -1,82 +1,180 @@
-import React, { useRef, useEffect } from 'react'
-import './DashPlayer.css'
-//dash.js 초기화 → 브라우저에서 manifest.mpd와 m4s 파일 받아와 스트리밍
-//적응형 스트리밍 관련 파일 : App.jsx, PlayerPage.jsx, videos.js, DashPlayer.jsx, Home.jsx, AdaptiveRowPost.jsx
+// DashPlayer.jsx
+
+
+import React, { useRef, useEffect, useState } from 'react';
+import Chart from 'chart.js/auto';
+import Papa from 'papaparse';
+
 export default function DashPlayer({ manifestUrl }) {
-  const videoRef = useRef(null)
+  const videoRef = useRef(null);
+  const chartRef = useRef(null);
+  const playerRef = useRef(null);
+  const chartInstanceRef = useRef(null);
 
-  console.log("📼 manifestUrl", manifestUrl)
+  const [bitrateLog, setBitrateLog] = useState([]);
+  const [currentSegment, setCurrentSegment] = useState(null);
+  const [segmentStartTime, setSegmentStartTime] = useState(Date.now());
 
+  // 📦 CSV 불러오기
   useEffect(() => {
-    const dashjs = window.dashjs
+    fetch('/husky/bitrate_logs/husky_bitrate_per_second.csv')
+      .then((res) => res.text())
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: true,
+          transformHeader: (header) => header.trim(),
+          complete: (result) => {
+            console.log('✅ CSV 샘플 확인:', result.data.slice(0, 3));
+            setBitrateLog(result.data);
+          },
+        });
+      });
+  }, []);
+
+  // 📺 dash.js 초기화 및 차트 생성
+  useEffect(() => {
+    const dashjs = window.dashjs;
     if (!dashjs || typeof dashjs.MediaPlayer !== 'function') {
-      console.error('❌ dash.js 로딩 실패')
-      return
+      console.error('❌ dash.js 로딩 실패');
+      return;
     }
 
-    const player = dashjs.MediaPlayer().create()
-    player.initialize(videoRef.current, manifestUrl, true)
-    //ABR 자동 품질 조정 활성화
-    player.updateSettings({
-      streaming: {
-        abr: {
-          autoSwitchBitrate: {
-            video: true
-          }
-        }
-      }
-    })
+    const player = dashjs.MediaPlayer().create();
+    playerRef.current = player;
+    player.initialize(videoRef.current, manifestUrl, true);
 
-    let lastTrackId = null
-
-    const logCurrentTrackInfo = (label) => {
-      const currentTrack = player.getCurrentTrackFor('video')
-      const rep = currentTrack?.bitrateList?.[0]
-
-      if (label === 'QUALITY_CHANGE_RENDERED' && currentTrack?.id === lastTrackId) return
-      lastTrackId = currentTrack?.id
-
-      if (currentTrack && rep) {
-        console.log(`✅ [${label}]`)
-        console.log(`   • ID        : ${currentTrack.id}`)
-        console.log(`   • Height    : ${rep.height ?? 'Unknown'}p`)
-        console.log(`   • Bandwidth : ${rep.bandwidth ?? 'Unknown'} bps`)
-      } else {
-        console.warn(`⚠️ [${label}] 트랙 정보를 찾을 수 없습니다.`)
-      }
-    }
-
-    player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_REQUESTED, (e) => {
-      if (e.mediaType !== 'video') return
-
-      const fromHeight = e.oldRepresentation?.height ?? 'unknown'
-      const toHeight = e.newRepresentation?.height ?? 'unknown'
-      const fromBw = e.oldRepresentation?.bandwidth ?? 'unknown'
-      const toBw = e.newRepresentation?.bandwidth ?? 'unknown'
-
-      console.log(`🟡 [QUALITY_CHANGE_REQUESTED] From ${fromHeight}p (${fromBw}bps) → ${toHeight}p (${toBw}bps)`)
-    })
-
-    player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-      logCurrentTrackInfo('STREAM_INITIALIZED')
-    })
-
-    player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => {
-      logCurrentTrackInfo('QUALITY_CHANGE_RENDERED')
-    })
+    chartInstanceRef.current = new Chart(chartRef.current, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Bitrate (kbps)',
+            data: [],
+            borderColor: 'orange',
+            backgroundColor: 'orange',
+            fill: false,
+            tension: 0.1,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: {
+            title: { display: true, text: 'Time (s)' },
+            beginAtZero: true,  // ✅ 필수
+            min: 0,             // ✅ X축 0부터 강제
+          },
+          y: {
+            title: { display: true, text: 'Bitrate (kbps)' },
+            beginAtZero: false,
+          },
+        },
+      },
+    });
 
     return () => {
-      player.reset()
-    }
-  }, [manifestUrl])
+      player.reset();
+      chartInstanceRef.current?.destroy();
+    };
+  }, [manifestUrl]);
+
+  // 📊 bitrateLog가 준비된 후 이벤트 핸들러 등록
+  useEffect(() => {
+    if (!bitrateLog.length || !playerRef.current) return;
+
+    const player = playerRef.current;
+
+    const handleFragment = (e) => {
+      const url = e.request?.url;
+      const video = e.request?.mediaType === 'video';
+      if (!url || !video) return;
+
+      const match = url.match(/merged_ai_fixed_(\d+p)_dash(\d+)\.m4s/);
+      if (!match) return;
+
+      const resolution = match[1];
+      const segIdx = parseInt(match[2], 10);
+      const segmentName = `ai_seg_${segIdx}_${resolution}.mp4`;
+
+      setCurrentSegment(segmentName);
+      setSegmentStartTime(Date.now());
+
+      console.log("🔍 현재 세그먼트 이름:", segmentName);
+      console.log("📄 bitrateLog 샘플:", bitrateLog.slice(0, 3));
+
+      const matched = bitrateLog.filter(
+        (row) => row.segment_name?.trim() === segmentName
+      );
+
+      if (matched.length === 0) {
+        console.warn(`[📉] ${segmentName} 에 대한 비트레이트 없음`);
+        return;
+      }
+
+      const chart = chartInstanceRef.current;
+
+      matched.forEach((row) => {
+        const localSec = parseInt(row.time_second);
+        const globalSec = (segIdx-1) * 10 + localSec;
+        const bitrate = parseFloat(row.bitrate_kbps);
+
+        if (!isNaN(bitrate)) {
+          const chart = chartInstanceRef.current;
+          const globalSecStr = globalSec.toString(); // ✅ 문자열로 변환
+          const idx = chart.data.labels.indexOf(globalSecStr); // ✅ 문자열 비교
+
+          if (idx !== -1) {
+            // 이미 label에 해당 초 있음 → 값 덮어쓰기
+            chart.data.datasets[0].data[idx] = bitrate;
+          } else {
+            // 없으면 새로 추가
+            chart.data.labels.push(globalSecStr);  // ✅ 문자열로 추가
+            chart.data.datasets[0].data.push(bitrate);
+          }
+        }
+      });
+      chart.update();
+    };
+
+    player.on(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
+
+
+    return () => {
+      player.off(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
+    };
+  }, [bitrateLog]);
+
+  // 🔁 1초마다 현재 세그먼트 비트레이트 출력
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!currentSegment || bitrateLog.length === 0) return;
+
+      const elapsedSec = Math.floor((Date.now() - segmentStartTime) / 1000);
+      const row = bitrateLog.find(
+        (r) =>
+          r.segment_name?.trim() === currentSegment &&
+          parseInt(r.time_second) === elapsedSec
+      );
+
+      if (row) {
+        console.log(`📦 [${currentSegment}] ${elapsedSec}s → ${row.bitrate_kbps} kbps`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentSegment, segmentStartTime, bitrateLog]);
 
   return (
-    <div className="dash-player-container">
-      <video
-        ref={videoRef}
-        className="dash-player-video"
-        controls
-      />
+    <div>
+      <video ref={videoRef} controls width="800" />
+      <canvas ref={chartRef} />
     </div>
-  )
+  );
 }
