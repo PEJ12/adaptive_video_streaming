@@ -24,8 +24,48 @@ import glob
 from collections import Counter
 import re
 from xml.etree.ElementTree import Element, SubElement, ElementTree
+import shutil
 
+
+
+
+#'''
 # 함수 추가(은재)
+
+def get_valid_segments(segment_dir, min_duration=1.0):
+    segments = sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")], key=extract_number)
+    valid_segments = []
+    valid_indices = []
+    for seg in segments:
+        # ffprobe로 길이 측정
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            seg
+        ]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        duration = float(result.stdout.strip())
+        if duration >= min_duration:
+            valid_segments.append(seg)
+            idx = extract_number(os.path.basename(seg))
+            valid_indices.append(idx)
+        else:
+            print(f"[SKIP] {os.path.basename(seg)} 너무 짧음({duration:.2f}s) → 제외")
+    return valid_segments, valid_indices
+
+def clean_m4s_files(video_dir, valid_indices):
+    # 각 해상도별로 m4s 파일 정리
+    for rep_id in range(4):
+        all_m4s = glob.glob(os.path.join(video_dir, f"chunk-stream{rep_id}-*.m4s"))
+        for m4s in all_m4s:
+            idx = int(re.search(r'-(\d+)\.m4s$', m4s).group(1))
+            if idx not in valid_indices:
+                os.remove(m4s)
+                print(f"[CLEAN] {m4s} 삭제 완료")
+
+'''
 def get_valid_segments(segment_dir, min_duration=1.0):
     segments = sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")], key=extract_number)
     valid_segments = []
@@ -45,6 +85,7 @@ def get_valid_segments(segment_dir, min_duration=1.0):
         else:
             print(f"[SKIP] {os.path.basename(seg)} 너무 짧음({duration:.2f}s) → 제외")
     return valid_segments
+'''
 
 def split_video_to_segments(input_path, segment_dir, segment_length=10):
     segment_pattern = os.path.join(segment_dir, "segment_%d.mp4")
@@ -55,6 +96,9 @@ def split_video_to_segments(input_path, segment_dir, segment_length=10):
         "-f", "segment",
         "-segment_time", str(segment_length), 
         "-reset_timestamps", "1", 
+        "-fflags", "+genpts",
+        "-avoid_negative_ts", "make_zero",
+        "-start_at_zero",
         segment_pattern
     ]
     subprocess.run(cmd, check=True)
@@ -71,24 +115,61 @@ def split_video_to_segments_reencode(input_path, segment_dir, segment_length=10)
     segment_pattern = os.path.join(segment_dir, "segment_%d.mp4")
 
     cmd = [
-        "ffmpeg", "-i", input_path,
+        "ffmpeg", "-ss", "0", "-i", input_path,
         "-c:v", "libx264",
         "-preset", "fast",
+        "-avoid_negative_ts", "make_zero", 
         "-crf", "23",
         "-g", str(segment_length * 24),  # GOP 사이즈 (FPS=24 가정)
         "-keyint_min", str(segment_length * 24),
+        "-sc_threshold", "0", 
         "-force_key_frames", f"expr:gte(t,n_forced*{segment_length})",
         "-c:a", "aac", "-b:a", "128k",
         "-f", "segment",
         "-segment_time", str(segment_length),
         "-reset_timestamps", "1",
         "-y",
+        "-fflags", "+genpts",
+        #"-start_at_zero",
+        #"-ss", "0",
         segment_pattern
     ]
 
     print("[🎬] FFmpeg 세그먼트 재인코딩 중...")
     subprocess.run(cmd, check=True)
-    return sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")])
+    min_last_duration = 1.0
+    segments = sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")])
+    # 마지막 세그먼트가 1초 미만이면 삭제
+    if len(segments) >= 2:
+        last_segment = segments[-1]
+        last_duration = get_last_segment_duration(last_segment)
+        if last_duration < min_last_duration:
+            print(f"[WARN] 마지막 세그먼트 {last_segment}가 {last_duration:.2f}s로 너무 짧아서 삭제")
+            # --- segment_13.mp4 삭제 ---
+            try:
+                os.remove(last_segment)
+                print(f"[INFO] {last_segment} 삭제 완료")
+            except Exception as e:
+                print(f"[ERROR] {last_segment} 삭제 실패: {e}")
+
+            # --- 해당 m4s들도 모두 삭제 ---
+            seg_num = int(os.path.basename(last_segment).split('_')[-1].split('.')[0])
+            base_dir = os.path.dirname(segment_dir)   # 예: static/husky
+            for rep_id in range(4):
+                m4s_path = os.path.join(base_dir, f"chunk-stream{rep_id}-{seg_num}.m4s")
+                if os.path.exists(m4s_path):
+                    try:
+                        os.remove(m4s_path)
+                        print(f"[INFO] {m4s_path} 삭제 완료")
+                    except Exception as e:
+                        print(f"[ERROR] {m4s_path} 삭제 실패: {e}")
+
+            # --- segments 리스트 갱신 ---
+            segments = sorted([os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".mp4")])
+
+    return segments
+
+
 
 def extract_features(input_path, segment_motion_vector_dir):
     # 모션벡터 추출
@@ -220,7 +301,10 @@ def generate_init_stream(input_path, crf, max_rate, output_dir):
             "ffmpeg",
             "-i", input_path,
             "-vf", f"scale={res}",
+            "-r", "24",  # FPS 설정 (24fps로 고정) / 은재
             "-c:v", "libx264",
+            "-profile:v", "high",
+            "-ss", "0",
             "-preset", "medium",
             "-crf", str(crf),
             "-maxrate", max_rate,
@@ -230,6 +314,9 @@ def generate_init_stream(input_path, crf, max_rate, output_dir):
             "-movflags", "+frag_keyframe+empty_moov+default_base_moof",
             "-f", "mp4",
             "-y",
+            "-fflags", "+genpts",
+            "-avoid_negative_ts", "make_zero",
+            "-start_at_zero",
             output_path
         ]
 
@@ -241,60 +328,56 @@ def generate_init_stream(input_path, crf, max_rate, output_dir):
             print(e.stderr)
     
 def encode_segment_per_resolution(input_path, crf, max_rate, video_dir):
-    """
-    하나의 세그먼트를 해상도별로 CRF 및 MaxRate로 인코딩
-    ex: segment_0_360p.mp4, segment_0_480p.mp4 ...
-    """
     resolutions = {
         "360p":  ("640x360", 0),
         "480p":  ("854x480", 1),
         "720p":  ("1280x720", 2),
         "1080p": ("1920x1080", 3)
     }
-    
-    # bufsize는 일반적으로 maxrate의 1.5 ~ 2배 정도로 설정합니다.
-    # max_rate가 'k'나 'M' 단위로 올 수 있으므로, 숫자만 파싱하여 계산
     if max_rate.endswith('k'):
         rate_val = int(max_rate[:-1]) * 1000
     elif max_rate.endswith('M'):
         rate_val = int(max_rate[:-1]) * 1000000
     else:
-        rate_val = int(max_rate) # 기본은 bps
+        rate_val = int(max_rate)
     bufsize_val = rate_val * 2
     bufsize = f"{int(bufsize_val / 1000)}k" if bufsize_val >= 1000 else f"{bufsize_val}"
 
     output_paths = {}
-    
-    # ffmpeg -i [입력 파일] -c:v [인코더] -crf [CRF] -maxrate [MaxRate] -bufsize [BufferSize] -y [출력 파일]
+
     for label, (res, rep_id) in resolutions.items():
         segment_name = os.path.basename(input_path).split('.')[0]
-        segment_id = segment_name.split('_')[-1]  # 예: 0
-        #output_path = f"{output_base_path}_{label}.mp4"
-        output_path = os.path.join(video_dir, f"chunk-stream{rep_id}-{segment_id}.m4s")
+        segment_id = segment_name.split('_')[-1]
+        output_path = os.path.join(video_dir, f"chunk-stream{rep_id}-{int(segment_id)}.m4s")
         cmd = [
             "ffmpeg",
             "-i", input_path,
-            "-vf", f"scale={res}", # 해상도별 인코딩
-            "-c:v", "libx264", # config에서 설정한 인코더 사용
-            "-preset", "medium",  # 인코딩 속도 vs 압축률 조절 (GPU 인코더에도 적용 가능)
-            "-crf", str(crf), # NVENC의 CQP 매핑
+            "-vf", f"scale={res}",
+            "-r", "24",
+            "-c:v", "libx264",
+            "-preset", "medium",
+            "-profile:v", "high",
+            "-ss", "0",
+            "-crf", str(crf),
             "-maxrate", max_rate,
             "-bufsize", bufsize,
-            "-an",  # ✅ 오디오 제거
-            "-threads", "0",  # CPU 멀티스레드 자동 
+            "-an",
+            "-threads", "0",
             "-movflags", "+frag_keyframe+empty_moov+default_base_moof",
             "-f", "mp4",
-            "-y",  # 덮어쓰기 허용
+            "-y",
+            "-fflags", "+genpts",
+            "-avoid_negative_ts", "make_zero",
+            "-start_at_zero",
             output_path
         ]
-
         try:
-            subprocess.run(cmd, check=True, capture_output=True, text=True, errors='ignore')
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
             output_paths[label] = output_path
         except subprocess.CalledProcessError as e:
             print(f"인코딩 실패: {input_path} (CRF: {crf}, Max Rate: {max_rate})")
             print(f"FFmpeg 에러 메시지:\n{e.stderr}")
-    
+
     return output_paths
 
 def get_last_segment_duration(last_segment_path):
@@ -333,8 +416,10 @@ def run_dash_generation(sh_path):
         print("[✅] DASH 세그먼트 생성 완료")
 
 #매개변수 수정함!!(은재)
+'''
 def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment_duration=10, timescale=24000):
     print("[📄] MPD 파일 생성 중...")
+    
 
     rep_settings = [
         {"id": 0, "width": 640,  "height": 360,  "bandwidth": 500000,  "codecs": "avc1.64001e", "sar": "1:1"},
@@ -343,9 +428,31 @@ def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment
         {"id": 3, "width": 1920, "height": 1080, "bandwidth": 3000000, "codecs": "avc1.640028", "sar": "1:1"}
     ]
 
+    m4s_pattern = os.path.join(output_dir, "chunk-stream0-*.m4s")
+    m4s_files = sorted(glob.glob(m4s_pattern), key=lambda x: int(re.search(r'-(\d+)\.m4s$', x).group(1)))
+    actual_segments_info = []
+    current_time = 0
+    for seg_file in m4s_files:
+        duration_sec = get_actual_segment_duration(seg_file)
+        if duration_sec is None:
+            continue
+        duration_ticks = int(duration_sec * timescale)
+        seg_num = int(re.search(r'-(\d+)\.m4s$', seg_file).group(1))
+        actual_segments_info.append({
+            'index': seg_num,
+            'time': current_time,
+            'duration': duration_ticks,
+            'duration_sec': duration_sec
+        })
+        current_time += duration_ticks
+
     segment_duration_ticks = int(segment_duration * timescale)
     last_seg_ticks = int(last_segment_duration * timescale)
     total_ticks = (num_segments - 1) * segment_duration_ticks + last_seg_ticks
+
+    # 전체 영상 길이(초) 계산
+    #total_duration_sec = (num_segments - 1) * segment_duration + last_segment_duration
+    total_duration_sec = sum(seg['duration_sec'] for seg in actual_segments_info)
 
     mpd = Element("MPD", {
         "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -354,7 +461,7 @@ def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment
         "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd",
         "profiles": "urn:mpeg:dash:profile:isoff-live:2011",
         "type": "static",
-        "mediaPresentationDuration": f"PT{round(total_ticks / timescale, 3)}S",
+        "mediaPresentationDuration": f"PT{total_duration_sec:.3f}S",  # 전체 길이 반영
         "maxSegmentDuration": f"PT{segment_duration:.3f}S",
         "minBufferTime": "PT8.3S"
     })
@@ -392,27 +499,134 @@ def generate_single_mpd(output_dir, num_segments, last_segment_duration, segment
             "timescale": str(timescale),
             "initialization": f"init-stream{rep['id']}.mp4",
             "media": f"chunk-stream{rep['id']}-$Number$.m4s",
-            "startNumber": "0"  # 1 -> 0 으로 수정
+            "startNumber": "0"  # 1 -> 0 으로 수정 
         })
 
         timeline = SubElement(segment_template, "SegmentTimeline")
         
-        # 일반 세그먼트
-        for i in range(num_segments - 1):
-            SubElement(timeline, "S", {
-                "t": str(i * segment_duration_ticks),
-                "d": str(segment_duration_ticks),
-            })
+     
+       
         # 마지막 세그먼트 (길이가 짧을 수 있음)
         last_ticks = int(last_segment_duration * timescale)
-        SubElement(timeline, "S", {
-            "t": str((num_segments - 1) * segment_duration_ticks),
-            "d": str(last_ticks)
-        })
+        for seg in actual_segments_info:
+            SubElement(timeline, "S", {
+                "t": str(seg['time']),
+                "d": str(seg['duration'])
+            })
 
     # 저장
     output_path = os.path.join(output_dir, "manifest.mpd")
     ElementTree(mpd).write(output_path, encoding="utf-8", xml_declaration=True)
+
+
+    print("[📄] MPD 파일 잘 만들어졌나 확인!...")
+    
+    # 실제 생성된 m4s 파일들을 확인
+    m4s_files = glob.glob(os.path.join(output_dir, "chunk-stream0-*.m4s"))
+    m4s_numbers = sorted([int(re.search(r'chunk-stream0-(\d+)\.m4s', f).group(1)) for f in m4s_files])
+    
+    print(f"🔍 실제 생성된 세그먼트 번호들: {m4s_numbers}")
+    print(f"🔍 예상 세그먼트 개수: {num_segments}")
+    
+    # 번호가 0부터 연속적인지 확인
+    expected_numbers = list(range(num_segments))
+    if m4s_numbers != expected_numbers:
+        print(f"⚠️ 세그먼트 번호 불일치! 예상: {expected_numbers}, 실제: {m4s_numbers}")
+
+    print(f"[✅] manifest.mpd 생성 완료! → {output_path}")
+'''
+def generate_single_mpd(output_dir, valid_indices, segment_duration=10, timescale=24000):
+    print("[📄] MPD 파일 생성 중...")
+
+    rep_settings = [
+        {"id": 0, "width": 640,  "height": 360,  "bandwidth": 500000,  "codecs": "avc1.64001e", "sar": "1:1"},
+        {"id": 1, "width": 854,  "height": 480,  "bandwidth": 1000000, "codecs": "avc1.64001e", "sar": "1280:1281"},
+        {"id": 2, "width": 1280, "height": 720,  "bandwidth": 2000000, "codecs": "avc1.64001f", "sar": "1:1"},
+        {"id": 3, "width": 1920, "height": 1080, "bandwidth": 3000000, "codecs": "avc1.640028", "sar": "1:1"}
+    ]
+
+    actual_segments_info = []
+    current_time = 0
+    for seg_idx in sorted(valid_indices):
+        m4s_file = os.path.join(output_dir, f"chunk-stream0-{seg_idx}.m4s")
+        duration_sec = get_last_segment_duration(m4s_file)
+        if duration_sec is None:
+            continue
+        duration_ticks = int(duration_sec * timescale)
+        actual_segments_info.append({
+            'index': seg_idx,
+            'time': current_time,
+            'duration': duration_ticks,
+            'duration_sec': duration_sec
+        })
+        current_time += duration_ticks
+
+    total_duration_sec = sum(seg['duration_sec'] for seg in actual_segments_info)
+    actual_num_segments = len(actual_segments_info)
+
+    mpd = Element("MPD", {
+        "xmlns": "urn:mpeg:dash:schema:mpd:2011",
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+        "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd",
+        "profiles": "urn:mpeg:dash:profile:isoff-live:2011",
+        "type": "static",
+        "mediaPresentationDuration": f"PT{total_duration_sec:.3f}S",
+        "maxSegmentDuration": f"PT{segment_duration:.3f}S",
+        "minBufferTime": "PT8.3S"
+    })
+
+    SubElement(mpd, "ProgramInformation")
+    SubElement(mpd, "ServiceDescription", {"id": "0"})
+    period = SubElement(mpd, "Period", {"id": "0", "start": "PT0.0S"})
+
+    adaptation_set = SubElement(period, "AdaptationSet", {
+        "id": "0",
+        "contentType": "video",
+        "startWithSAP": "1",
+        "segmentAlignment": "true",
+        "bitstreamSwitching": "true",
+        "frameRate": "24000/1001",
+        "maxWidth": "1920",
+        "maxHeight": "1080",
+        "par": "16:9",
+        "lang": "und"
+    })
+
+    for rep in rep_settings:
+        representation = SubElement(adaptation_set, "Representation", {
+            "id": str(rep["id"]),
+            "mimeType": "video/mp4",
+            "codecs": rep["codecs"],
+            "bandwidth": str(rep["bandwidth"]),
+            "width": str(rep["width"]),
+            "height": str(rep["height"]),
+            "sar": rep["sar"]
+        })
+        segment_template = SubElement(representation, "SegmentTemplate", {
+            "timescale": str(timescale),
+            "initialization": f"init-stream{rep['id']}.mp4",
+            "media": f"chunk-stream{rep['id']}-$Number$.m4s",
+            "startNumber": "0"
+        })
+        timeline = SubElement(segment_template, "SegmentTimeline")
+        for seg in actual_segments_info:
+            SubElement(timeline, "S", {
+                "t": str(seg['time']),
+                "d": str(seg['duration'])
+            })
+
+    output_path = os.path.join(output_dir, "manifest.mpd")
+    ElementTree(mpd).write(output_path, encoding="utf-8", xml_declaration=True)
+
+    m4s_numbers = [seg['index'] for seg in actual_segments_info]
+    print(f"🔍 실제 생성된 세그먼트 번호들: {m4s_numbers}")
+    print(f"🔍 실제 세그먼트 개수: {actual_num_segments}")
+
+    expected_numbers = list(range(actual_num_segments))
+    if m4s_numbers != expected_numbers:
+        print(f"⚠️ 세그먼트 번호 불일치! 예상: {expected_numbers}, 실제: {m4s_numbers}")
+
     print(f"[✅] manifest.mpd 생성 완료! → {output_path}")
 
 def v2_generate_single_mpd(output_dir, num_segments, segment_duration, timescale=24000):
@@ -504,8 +718,7 @@ ffmpeg_path = r"/mnt/c/ffmpeg-2025-06-04-git-a4c1a5b084-essentials_build/bin/ffm
 current_dir = os.path.dirname(os.path.abspath(__file__))
 input_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "input"))
 output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "static"))
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir, exist_ok=True)
+os.makedirs(output_dir, exist_ok=True)
 
 # 모델 로드
 model = joblib.load(os.path.join(current_dir, 'v3_rf_model.pkl'))
@@ -540,14 +753,24 @@ for file in video_files:
     
     # 원본 영상을 10초 단위의 세그먼트(mp4)로 분할
     segments = split_video_to_segments_reencode(input_path, segment_dir, segment_length=10)
+    # 추가(은재): 세그먼트 길이가 0.1초 이상인 것만 필터링
+    segments, valid_indices = get_valid_segments(segment_dir, min_duration=1.0) 
     #segments = split_video_to_segments(input_path, segment_dir, segment_length=10)
+    clean_m4s_files(video_dir, valid_indices)
     encoded_segments = []
     
     for idx, segment_path in enumerate(segments):
         # 세그먼트별 특성 추출 및 전처리
         segment_name = os.path.basename(segment_path).split('.')[0]
         segment_motion_vector_dir = os.path.join(motion_vector_dir, segment_name)
+        
+        # 기존 폴더가 있으면 삭제
+        if os.path.exists(segment_motion_vector_dir):
+            shutil.rmtree(segment_motion_vector_dir)
+        os.makedirs(segment_motion_vector_dir, exist_ok=True)
         X_raw_dict = extract_features(segment_path, segment_motion_vector_dir)
+        if X_raw_dict is None:
+            raise RuntimeError(f"모션 벡터 추출 실패: {segment_path}")
         X_raw_list = list(X_raw_dict.values())
         X_scaled = scaler_X.transform([X_raw_list])
         
@@ -574,9 +797,20 @@ for file in video_files:
     segment_files.sort(key=extract_number)
     
     last_segment = segment_files[-1]
-    last_segment_path = os.path.join(segment_dir, last_segment)
-    last_duration = get_last_segment_duration(last_segment_path)
-    print(f"마지막 세그먼트({last_segment}) 길이: {last_duration:.2f}초")
+    #last_segment_path = os.path.join(segment_dir, last_segment)
+    #last_duration = get_last_segment_duration(last_segment_path)
+    #print(f"마지막 세그먼트({last_segment}) 길이: {last_duration:.2f}초")
     
-    num_segments = len([f for f in os.listdir(os.path.join(video_dir, "segments"))])
-    generate_single_mpd(video_dir, num_segments, last_duration, segment_length)
+    #num_segments = len([f for f in os.listdir(os.path.join(video_dir, "segments"))])
+    #generate_single_mpd(video_dir, num_segments, last_duration, segment_length)
+
+    #변경(은재)
+    last_segment_path = segments[-1]
+    last_duration = get_last_segment_duration(last_segment_path)
+    print(f"마지막 세그먼트({os.path.basename(last_segment_path)}) 길이: {last_duration:.2f}초")
+
+    num_segments = len(segments)
+#    generate_single_mpd(video_dir, num_segments, last_duration, segment_length)
+    generate_single_mpd(video_dir, valid_indices, segment_duration=segment_length)
+    
+#'''

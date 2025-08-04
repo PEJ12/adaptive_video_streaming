@@ -187,7 +187,7 @@ def split_video(input_path, segment_dir, segment_length=10):
     return seg_paths
 
 # (2) 모션벡터/AI 특성 추출 함수 (변경 없음, 생략)
-
+'''
 # (3) AI 인코딩 + 해상도별 저장
 def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
     ai_segs_by_res = {tag: [] for tag in resolution_tags}
@@ -215,6 +215,40 @@ def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
             subprocess.run(cmd, check=True)
             ai_segs_by_res[tag].append(out_mp4)
     return ai_segs_by_res
+'''
+
+# (3) AI 인코딩 + 해상도별 저장
+def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
+    ai_segs_by_res = {tag: [] for tag in resolution_tags}
+
+    for i, seg_path in enumerate(seg_paths):
+        # --- AI 특징 추출 (세그먼트당 한 번만 수행) ---
+        mv_dir = os.path.join(out_dir, f"mv_{i}_cache")  # 해상도와 무관한 공통 폴더
+        os.makedirs(mv_dir, exist_ok=True)
+        features = extract_features(seg_path, mv_dir)
+        crf, maxrate = ai_predict(features, scaler_X, scaler_y, model)
+        print(f"[AI인코딩] segment_{i}: CRF={crf}, maxrate={maxrate}")
+
+        for tag, res in resolutions.items():
+            seg_name = f"ai_seg_{i}_{tag}.mp4"
+            out_mp4 = os.path.join(out_dir, seg_name)
+
+            # --- 인코딩 (해상도별 동일한 AI 파라미터 사용)
+            cmd = [
+                "ffmpeg", "-y", "-i", seg_path,
+                "-vf", f"scale={res}",
+                "-c:v", "libx264",
+                "-preset", "fast",
+                "-crf", str(crf),
+                "-maxrate", str(int(maxrate)),
+                "-bufsize", "4000k",
+                "-an", out_mp4
+            ]
+            subprocess.run(cmd, check=True)
+            ai_segs_by_res[tag].append(out_mp4)
+
+    return ai_segs_by_res
+
 
 # (4) 해상도별 concat.txt
 def make_concat_txt_multi_res(ai_segs_by_res, out_dir):

@@ -18,6 +18,7 @@ import pandas as pd
 from collections import Counter
 import glob
 import re
+import shutil #추가!
 
 INPUT_MP4 = "../input/husky.mp4"
 TMP_SEG_DIR = "./static/husky/segments"
@@ -56,6 +57,7 @@ def ai_predict(feature_list, scaler_X, scaler_y, model):
 
 def extract_features(input_path, segment_motion_vector_dir):
     # 1. 모션벡터 추출
+    print(f"[특징추출 시작] {input_path} -> {segment_motion_vector_dir}")
     extract_script = "./mv_extractor/extract_mvs.py"
     cmd = [
         "python3", extract_script,
@@ -137,6 +139,15 @@ def extract_features(input_path, segment_motion_vector_dir):
         Inter_ratio,                    # Inter
         Skip_ratio                      # Skip
     ]
+    try:
+        if os.path.exists(csv_dir):
+            shutil.rmtree(csv_dir)  # motion_vectors 폴더 삭제
+        if os.path.exists(os.path.join(segment_motion_vector_dir, "frame_types.txt")):
+            os.remove(os.path.join(segment_motion_vector_dir, "frame_types.txt"))  # 프레임 타입 삭제
+        if os.path.exists(segment_motion_vector_dir):
+            os.rmdir(segment_motion_vector_dir)  # 상위 캐시 디렉토리 제거 (비어있을 경우)
+    except Exception as e:
+        print(f"[경고] 캐시 삭제 중 오류 발생: {e}")
     return features
 
 
@@ -162,10 +173,33 @@ def split_video(input_path, segment_dir, segment_length=10):
             "-i", input_path,
             "-t", str(segment_length),
             "-an",
-            "-c:v", "copy",
+            "-c:v", "libx264",  # 🔧 인코딩을 강제
+            "-preset", "fast",
+            "-crf", "23",
             out
         ]
+
         subprocess.run(cmd, check=True)
+
+        # segment 생성 후 ffprobe로 길이 확인
+        cmd_probe = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            out
+        ]
+        result = subprocess.run(cmd_probe, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            duration = float(result.stdout.strip())
+            if duration < 1.0:  # 너무 짧거나 오류 있는 세그먼트는 무시
+                print(f"[SKIP] {out} 너무 짧거나 영상 없음 → 제외")
+                continue
+        except ValueError:
+            print(f"[SKIP] {out} 길이 확인 실패 → 제외")
+            continue
+
+
         seg_paths.append(out)
     print("세그먼트 파일 생성:", seg_paths)
     return seg_paths
@@ -175,17 +209,20 @@ def split_video(input_path, segment_dir, segment_length=10):
 # (3) AI 인코딩 + 해상도별 저장
 def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
     ai_segs_by_res = {tag: [] for tag in resolution_tags}
+
     for i, seg_path in enumerate(seg_paths):
+        # --- AI 특징 추출 (세그먼트당 한 번만 수행) ---
+        mv_dir = os.path.join(out_dir, f"mv_{i}_cache")  # 해상도와 무관한 공통 폴더
+        os.makedirs(mv_dir, exist_ok=True)
+        features = extract_features(seg_path, mv_dir)
+        crf, maxrate = ai_predict(features, scaler_X, scaler_y, model)
+        print(f"[AI인코딩] segment_{i}: CRF={crf}, maxrate={maxrate}")
+
         for tag, res in resolutions.items():
             seg_name = f"ai_seg_{i}_{tag}.mp4"
             out_mp4 = os.path.join(out_dir, seg_name)
-            mv_dir = os.path.join(out_dir, f"mv_{i}_{tag}")
-            os.makedirs(mv_dir, exist_ok=True)
-            # --- AI 특징 추출 (1번만 추출해서 캐시 써도 됨, 여기서는 그냥 매번 추출)
-            features = extract_features(seg_path, mv_dir)
-            crf, maxrate = ai_predict(features, scaler_X, scaler_y, model)
-            print(f"[AI인코딩] segment_{i} {tag}: CRF={crf}, maxrate={maxrate}")
-            # --- 인코딩 (해상도별)
+
+            # --- 인코딩 (해상도별 동일한 AI 파라미터 사용)
             cmd = [
                 "ffmpeg", "-y", "-i", seg_path,
                 "-vf", f"scale={res}",
@@ -196,11 +233,17 @@ def ai_encode_segments_multi_res(seg_paths, out_dir, scaler_X, scaler_y, model):
                 "-bufsize", "4000k",
                 "-an", out_mp4
             ]
-            subprocess.run(cmd, check=True)
-            ai_segs_by_res[tag].append(out_mp4)
+            try:
+                subprocess.run(cmd, check=True)
+                ai_segs_by_res[tag].append(out_mp4)
+            except subprocess.CalledProcessError as e:
+                print(f"[에러] segment_{i}_{tag} 인코딩 실패: {e}")
+
     return ai_segs_by_res
 
+
 # (4) 해상도별 concat.txt
+'''
 def make_concat_txt_multi_res(ai_segs_by_res, out_dir):
     concat_txts = {}
     for tag, segs in ai_segs_by_res.items():
@@ -210,6 +253,23 @@ def make_concat_txt_multi_res(ai_segs_by_res, out_dir):
                 f.write(f"file '{os.path.abspath(p)}'\n")
         concat_txts[tag] = concat_txt
     return concat_txts
+'''
+# ✅ 함수명: make_concat_txt_multi_res
+def make_concat_txt_multi_res(_, out_dir):
+    from glob import glob
+    import re
+
+    concat_txts = {}
+    for tag in resolution_tags:
+        seg_pattern = os.path.join(out_dir, f"ai_seg_*_{tag}.mp4")
+        segs = sorted(glob(seg_pattern), key=lambda x: int(re.search(r'ai_seg_(\d+)_', x).group(1)))
+        concat_txt = os.path.join(out_dir, f"concat_{tag}.txt")
+        with open(concat_txt, "w") as f:
+            for p in segs:
+                f.write(f"file '{os.path.abspath(p)}'\n")
+        concat_txts[tag] = concat_txt
+    return concat_txts
+
 
 # (5) 해상도별 병합 mp4
 def concat_segments_multi_res(concat_txts, out_dir):
@@ -220,7 +280,10 @@ def concat_segments_multi_res(concat_txts, out_dir):
             "ffmpeg", "-y",
             "-f", "concat", "-safe", "0",
             "-i", concat_txt,
-            "-c", "copy",
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-an",
             out_mp4
         ]
         subprocess.run(cmd, check=True)
@@ -246,7 +309,7 @@ def reencode_mp4_multi_res(merged_mp4s, out_dir):
 def mp4box_dash_multi_res(fixed_mp4s, out_dir, segment_ms=10000):
     mp4_args = []
     for tag in resolution_tags:
-        mp4_args.append(f"{fixed_mp4s[tag]}#video:name={tag}")
+        mp4_args.append(f"{fixed_mp4s[tag]}#video:name={tag}:start=1")
     mpd_path = os.path.join(out_dir, "manifest.mpd")
     cmd = [
         "MP4Box", "-dash", str(segment_ms), "-frag", str(segment_ms), "-rap",
@@ -256,6 +319,110 @@ def mp4box_dash_multi_res(fixed_mp4s, out_dir, segment_ms=10000):
     print("[MP4Box 실행]", " ".join(cmd))
     subprocess.run(cmd, check=True)
     print(f"[완료] DASH MPD/m4s 생성: {mpd_path}")
+
+'''
+def extract_bitrate_per_segment(segment_dir, out_csv_path):
+    """
+    각 세그먼트(mp4)의 1초 단위 비트레이트 측정 → CSV 저장
+    """
+    import pandas as pd
+    from glob import glob
+
+    rows = []
+    # (1) 세그먼트 경로를 static/husky 로 바꿔야 제대로 찾음
+    segment_dir = "./static/husky"  # 🔧 강제로 위치 지정
+    mp4_files = sorted(glob(os.path.join(segment_dir, "ai_seg_*_*.mp4")))
+    for mp4 in mp4_files:
+        segment_name = os.path.basename(mp4)
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "packet=pts_time,size",
+            "-of", "csv=p=0",
+            mp4
+        ]
+
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        lines = result.stdout.strip().splitlines()
+        time_bitrate = {}
+        for line in lines:
+            try:
+                time, size = line.strip().split(',')
+                sec = int(float(time))
+                size = int(size)
+                time_bitrate.setdefault(sec, 0)
+                time_bitrate[sec] += size
+            except:
+                continue
+
+        for sec, total_bytes in sorted(time_bitrate.items()):
+            kbps = round((total_bytes * 8) / 1000, 2)  # bytes → kilobits
+            rows.append([segment_name, sec, kbps])
+
+    df = pd.DataFrame(rows, columns=["segment_name", "time_second", "bitrate_kbps"])
+    os.makedirs(os.path.dirname(out_csv_path), exist_ok=True)
+    df.to_csv(out_csv_path, index=False)
+    print(f"[비트레이트 분석 완료] → {out_csv_path}")
+'''
+def extract_bitrate_per_segment(segment_dir, out_csv_path):
+    """
+    각 세그먼트(mp4)의 1초 단위 비트레이트 측정 → CSV 저장
+    """
+    import pandas as pd
+    from glob import glob
+    import re  # 🔹 세그먼트 번호 추출용
+    import os
+    import subprocess
+
+    rows = []
+    # (1) 세그먼트 경로를 static/husky 로 강제 지정
+    segment_dir = "./static/husky"  # 🔧 강제 경로
+    mp4_files = sorted(glob(os.path.join(segment_dir, "ai_seg_*_*.mp4")))
+
+    for mp4 in mp4_files:
+        original_name = os.path.basename(mp4)
+
+        # 🔸 세그먼트 이름에서 번호 추출 → +1 → 이름 재조립
+        match = re.match(r"(ai_seg_)(\d+)(_.+\.mp4)", original_name) 
+        if not match:
+            continue  # 이름 규칙 안 맞으면 스킵
+
+        prefix, num_str, suffix = match.groups()
+        new_index = int(num_str) + 1
+        segment_name = f"{prefix}{new_index}{suffix}"  # 🔧 수정된 이름
+
+        # 🔹 ffprobe로 비트레이트 추출
+        cmd = [
+            "ffprobe", "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "packet=pts_time,size",
+            "-of", "csv=p=0",
+            mp4
+        ]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        lines = result.stdout.strip().splitlines()
+        time_bitrate = {}
+        for line in lines:
+            try:
+                time, size = line.strip().split(',')
+                sec = int(float(time))
+                size = int(size)
+                time_bitrate.setdefault(sec, 0)
+                time_bitrate[sec] += size
+            except:
+                continue
+
+        for sec, total_bytes in sorted(time_bitrate.items()):
+            kbps = round((total_bytes * 8) / 1000, 2)  # bytes → kilobits
+            rows.append([segment_name, sec, kbps])  # 🔸 수정된 이름으로 기록
+
+    # 🔹 CSV 저장
+    df = pd.DataFrame(rows, columns=["segment_name", "time_second", "bitrate_kbps"])
+    os.makedirs(os.path.dirname(out_csv_path), exist_ok=True)
+    df.to_csv(out_csv_path, index=False)
+    print(f"[비트레이트 분석 완료] → {out_csv_path}")
+
+
 
 # (8) 전체 실행
 if __name__ == "__main__":
@@ -275,3 +442,8 @@ if __name__ == "__main__":
     fixed_mp4s = reencode_mp4_multi_res(merged_mp4s, OUT_DIR)
     print("6. mp4box로 dash 분할 + mpd 생성 (1개)")
     mp4box_dash_multi_res(fixed_mp4s, OUT_DIR, segment_ms=SEG_LEN*1000)
+    print("7. 세그먼트 비트레이트 측정 (1초 단위)")
+    extract_bitrate_per_segment(
+        "./static/husky",
+        "../Netflix/public/husky/bitrate_logs/husky_bitrate_per_second.csv"  # ← 변경됨
+    )
