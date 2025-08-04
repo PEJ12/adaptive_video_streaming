@@ -4,6 +4,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 import Papa from 'papaparse';
+import './DashPlayer.css';
 
 export default function DashPlayer({ manifestUrl }) {
   const videoRef = useRef(null);
@@ -172,9 +173,13 @@ export default function DashPlayer({ manifestUrl }) {
   }, [currentSegment, segmentStartTime, bitrateLog]);
 
   return (
-    <div>
-      <video ref={videoRef} controls width="800" />
-      <canvas ref={chartRef} />
+    <div className="dash-container">
+      <div className="dash-video-wrapper">
+        <video ref={videoRef} className="dash-video" controls />
+      </div>
+      <div className="dash-chart">
+        <canvas ref={chartRef} />
+      </div>
     </div>
   );
-}
+  }

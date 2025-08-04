@@ -1,17 +1,39 @@
-
 .dash-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dash-video-wrapper {
   position: relative;
   width: 100%;
-  max-width: 960px;
-  margin: 0 auto;               /* 가로 중앙 정렬 */
-  background: #000;             /* 영상 뒤 검정 배경 */
+  padding-top: 56.25%; /* 16:9 */
+  background-color: #000;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  margin-bottom: 2rem;
 }
 
 .dash-video {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
-  display: block;
-  background: #000;             /* 포스터 없는 구간용 배경 */
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.dash-chart {
+  width: 100%;
+  padding: 1rem;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
