@@ -1,93 +1,107 @@
-/* public/throttle-sw.js  — m4s/mpd 스로틀링 SW (교체본) */
+/* throttle-sw.js */
+/// <reference lib="webworker" />
+// 프로필 정의
 const PROFILES = {
-  fast: { bps: 9_000_000, latencyMs: 40 },   // 9 Mbps / 40ms
-  slow: { bps: 2_500_000, latencyMs: 120 },  // 2.5 Mbps / 120ms
-  off:  { bps: Infinity,  latencyMs: 0 },
+  off:  { bps: Infinity, latency: 0 },           // 제한 없음
+  slow: { bps: 2_500_000, latency: 120 },        // 2.5Mbps, 120ms RTT
+  fast: { bps: 10_000_000, latency: 40 },        // 10Mbps, 40ms
 };
 
 let current = PROFILES.off;
 
-// ★변경: 더 부드러운 스로틀(50ms 단위) + 전환 직후 300ms 만큼 버스트
-const TICK_MS    = 50;   // 50ms마다 일정 바이트를 흘림
-const WARMUP_MS  = 300;  // 전환 직후 0.3초는 빠르게 버스트 전송
+// 클라이언트가 보낸 프로필 변경 수신
+self.addEventListener('message', (ev) => {
+  const { type, profile } = ev.data || {};
+  if (type === 'SET_PROFILE' && PROFILES[profile]) {
+    current = PROFILES[profile];
+    self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+      .then(clients => clients.forEach(c => c.postMessage({
+        type: 'PROFILE_CHANGED',
+        profile,
+        bps: current.bps,
+        latency: current.latency,
+      })));
+  }
+});
 
-self.addEventListener('install', () => self.skipWaiting());
+// install/activate
+self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
-self.addEventListener('message', (e) => {
-  if (e.data?.type === 'SET_PROFILE' && PROFILES[e.data.profile]) {
-    current = PROFILES[e.data.profile];
-    log(`[SW] profile=${e.data.profile} (bps=${current.bps}, latency=${current.latencyMs}ms)`);
-  }
-});
+// throttle 대상: mpd, m4s, init, mp4(세그먼트) 등
+const THROTTLE_MATCH = /\.(mpd|m4s|mp4|m4v|cmfv?)($|\?)/i;
+const BYPASS_METHODS = new Set(['HEAD', 'OPTIONS']);
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  const isDash =
-    /\.m4s($|\?)/.test(url.pathname) ||
-    /\.mpd($|\?)/.test(url.pathname) ||
-    /init-stream\.mp4$/.test(url.pathname);
+  const req = event.request;
 
-  if (!isDash) return;
-  event.respondWith(throttledFetch(event.request));
-});
-
-async function throttledFetch(request) {
-  const res = await fetch(request, { cache: 'no-store' });
-
-  if ((current.bps === Infinity && current.latencyMs === 0) || !res.body) {
-    return res; // 제한 해제 또는 스트림 불가
+  // 캐시 우회 & 비대상/메소드 우회
+  if (!THROTTLE_MATCH.test(new URL(req.url).pathname) ||
+      BYPASS_METHODS.has(req.method) ||
+      current.bps === Infinity) {
+    event.respondWith(fetch(req, { cache: 'no-store' }));
+    return;
   }
 
-  // ★변경: 초기 지연 (짧게 튜닝)
-  if (current.latencyMs > 0) await delay(current.latencyMs);
+  event.respondWith(handleThrottled(req));
+});
 
-  const reader = res.body.getReader();
-  const headers = new Headers(res.headers);
-  headers.delete('content-length'); // 스트리밍 재계산을 위해 길이 제거
+async function handleThrottled(request) {
+  // 원본 응답 가져오기 (Range 포함)
+  const upstream = await fetch(request, { cache: 'no-store' });
 
-  const bytesPerSec = current.bps / 8;
-  const bytesPerTick = Math.max(8 * 1024, Math.floor(bytesPerSec * (TICK_MS / 1000)));
-  let warmupBudget = Math.floor(bytesPerSec * (WARMUP_MS / 1000)); // ★추가: 버스트 예산
+  // 바이트 스트리밍 가능한 경우에만 스로틀
+  const reader = upstream.body?.getReader?.();
+  if (!reader) return upstream;
 
-  let firstChunk = true;
+  const { bps, latency } = current;
+
+  // 최초 지연(왕복 지연 감안)
+  if (latency > 0) {
+    await delay(latency);
+  }
+
+  // bps 기준으로 청크 크기 계산 (50ms 당 전송량)
+  // 너무 작으면 overhead 커지니 하한/상한 둠.
+  const sliceIntervalMs = 50;
+  const bytesPerTick = Math.max(8 * 1024, Math.min((bps * sliceIntervalMs) / 1000 / 8, 256 * 1024));
 
   const stream = new ReadableStream({
-    async start(controller) {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) { controller.close(); break; }
-        if (!value) continue;
+    async pull(controller) {
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+        return;
+      }
 
-        let offset = 0;
-
-        // ★추가: 전환 직후 warm-up — 버퍼가 마르지 않도록 300ms치 예산까지는 지연 없이 빨리 흘림
-        if (warmupBudget > 0) {
-          const w = Math.min(warmupBudget, value.byteLength);
-          controller.enqueue(value.subarray(offset, offset + w));
-          warmupBudget -= w;
-          offset += w;
-          // 남은 데이터는 일반 스로틀로 처리
+      // value를 bytesPerTick 단위로 나눠서 천천히 push
+      let offset = 0;
+      while (offset < value.byteLength) {
+        const end = Math.min(offset + bytesPerTick, value.byteLength);
+        controller.enqueue(value.slice(offset, end));
+        offset = end;
+        // 전송 간격
+        if (offset < value.byteLength) {
+          await delay(sliceIntervalMs);
         }
-
-        // 일반 스로틀: tick 단위로 잘라서 전송
-        while (offset < value.byteLength) {
-          const end = Math.min(offset + bytesPerTick, value.byteLength);
-          controller.enqueue(value.subarray(offset, end));
-          offset = end;
-          await delay(TICK_MS);
-        }
-
-        firstChunk = false;
       }
     },
-    cancel(reason) { try { reader.cancel(reason); } catch (_) {} }
+    cancel(reason) {
+      try { reader.cancel(); } catch {}
+    }
   });
 
-  return new Response(stream, { status: res.status, statusText: res.statusText, headers });
+  // 헤더 복사 & 캐시 무효화
+  const headers = new Headers(upstream.headers);
+  headers.set('cache-control', 'no-store');
+
+  return new Response(stream, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers
+  });
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-function log(msg) {
-  self.clients.matchAll().then(cs => cs.forEach(c => c.postMessage({ type: 'LOG', msg })));
+function delay(ms) {
+  return new Promise((res) => setTimeout(res, ms));
 }

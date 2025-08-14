@@ -52,6 +52,18 @@ export default function DashPlayer({ manifestUrl }) {
 
     const player = dashjs.MediaPlayer().create();
     playerRef.current = player;
+
+    player.updateSettings({
+        streaming: {
+          abr: {
+            autoSwitchBitrate: {
+              video: true,
+              //audio: true
+            }
+          }
+        }
+    });
+
     player.initialize(videoRef.current, manifestUrl, true);
 
     chartInstanceRef.current = new Chart(chartRef.current, {
@@ -151,12 +163,16 @@ export default function DashPlayer({ manifestUrl }) {
       const chart = chartInstanceRef.current;
 
       matched.forEach((row) => {
-        const localSec = parseInt(row.time_second);
+     
+      for (let localSec = 0; localSec < 10; localSec++) {
+        const row = matched.find(r => parseInt(r.time_second) === localSec);
         const globalSec = (segIdx - 1) * 10 + localSec;
-        const bitrate = parseFloat(row.bitrate_kbps);
+        const globalSecStr = globalSec.toString();
 
-        if (!isNaN(bitrate)) {
-          const globalSecStr = globalSec.toString();
+        const chart = chartInstanceRef.current;
+
+        if (row && !isNaN(parseFloat(row.bitrate_kbps))) {
+          const bitrate = parseFloat(row.bitrate_kbps);
           const idx = chart.data.labels.indexOf(globalSecStr);
 
           if (idx !== -1) {
@@ -165,7 +181,14 @@ export default function DashPlayer({ manifestUrl }) {
             chart.data.labels.push(globalSecStr);
             chart.data.datasets[0].data.push(bitrate);
           }
+        } else {
+          // 데이터 없을 경우도 0 혹은 null로 채울 수 있음 (옵션)
+          console.warn(`❗️[비어있음] ${segmentName} ${localSec}s`);
         }
+      }
+
+
+
       });
       chart.update();
     };
@@ -178,24 +201,34 @@ export default function DashPlayer({ manifestUrl }) {
   }, [bitrateLog]);
 
   // 🔁 1초마다 현재 세그먼트 비트레이트 출력
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!currentSegment || bitrateLog.length === 0) return;
+// (1) useRef를 상단에 선언 (함수 컴포넌트 최상단에 위치해야 함)
+  const printedRef = useRef(new Set());
 
-      const elapsedSec = Math.floor((Date.now() - segmentStartTime) / 1000);
-      const row = bitrateLog.find(
-        (r) =>
-          r.segment_name?.trim() === currentSegment &&
-          parseInt(r.time_second) === elapsedSec
+  useEffect(() => {
+    if (!currentSegment || bitrateLog.length === 0) return;
+
+    const interval = setInterval(() => {
+      const matched = bitrateLog.filter(
+        (r) => r.segment_name?.trim() === currentSegment
       );
 
-      if (row) {
-        console.log(`📦 [${currentSegment}] ${elapsedSec}s → ${row.bitrate_kbps} kbps`);
+      for (let sec = 0; sec < 10; sec++) {
+        const key = `${currentSegment}-${sec}`;
+        if (printedRef.current.has(key)) continue;
+
+        const row = matched.find((r) => parseInt(r.time_second) === sec);
+        if (row) {
+          console.log(`📦 [${currentSegment}] ${sec}s → ${row.bitrate_kbps} kbps`);
+          printedRef.current.add(key);
+        }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentSegment, segmentStartTime, bitrateLog]);
+  }, [currentSegment, bitrateLog]); // ✅ segmentStartTime 제거!
+
+
+
 
   // ✅ SW 등록 + 프로파일 전송
   useEffect(() => {
