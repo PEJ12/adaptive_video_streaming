@@ -1,6 +1,5 @@
 // DashPlayer.jsx
 
-
 import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 import Papa from 'papaparse';
@@ -15,6 +14,15 @@ export default function DashPlayer({ manifestUrl }) {
   const [bitrateLog, setBitrateLog] = useState([]);
   const [currentSegment, setCurrentSegment] = useState(null);
   const [segmentStartTime, setSegmentStartTime] = useState(Date.now());
+  const [uiProfile, setUiProfile] = useState('off');
+  const currentProfileRef = useRef('off');
+
+
+  useEffect(() => {
+  if (!bitrateLog.length) return;
+  const seg1080 = bitrateLog.filter(row => row.segment_name === 'ai_seg_1_1080p.mp4');
+  console.log("[🔍 ai_seg_1_1080p.mp4 비트레이트]", seg1080);
+}, [bitrateLog]);
 
   // 📦 CSV 불러오기
   useEffect(() => {
@@ -54,31 +62,52 @@ export default function DashPlayer({ manifestUrl }) {
           {
             label: 'Bitrate (kbps)',
             data: [],
-            borderColor: 'orange',
-            backgroundColor: 'orange',
-            fill: false,
-            tension: 0.1,
-            pointRadius: 3,
-            pointHoverRadius: 6,
+            borderColor: '#ffb74d',             // 더 밝은 오렌지
+            backgroundColor: 'rgba(255,183,77,0.4)', // 약간 투명한 배경
+            fill: true,                         // 아래 면 채우기
+            tension: 0.3,                       // 더 부드러운 곡선
+            borderWidth: 2,
+            pointRadius: 1.5,                   // 작고 깔끔한 점
+            pointHoverRadius: 4,
+            pointBackgroundColor: '#fff',
           },
         ],
       },
       options: {
         responsive: true,
         animation: false,
+        devicePixelRatio: 2,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#eee',
+              font: { weight: 'bold' }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#222',
+            titleColor: '#ffb74d',
+            bodyColor: '#fff'
+          }
+        },
         scales: {
           x: {
-            title: { display: true, text: 'Time (s)' },
-            beginAtZero: true,  // ✅ 필수
-            min: 0,             // ✅ X축 0부터 강제
+            title: { display: true, text: 'Time (s)', color: '#ccc' },
+            ticks: { color: '#aaa' },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            beginAtZero: true,
+            min: 0,
           },
           y: {
-            title: { display: true, text: 'Bitrate (kbps)' },
+            title: { display: true, text: 'Bitrate (kbps)', color: '#ccc' },
+            ticks: { color: '#aaa' },
+            grid: { color: 'rgba(255,255,255,0.05)' },
             beginAtZero: false,
           },
         },
       },
     });
+
 
     return () => {
       player.reset();
@@ -123,20 +152,17 @@ export default function DashPlayer({ manifestUrl }) {
 
       matched.forEach((row) => {
         const localSec = parseInt(row.time_second);
-        const globalSec = (segIdx-1) * 10 + localSec;
+        const globalSec = (segIdx - 1) * 10 + localSec;
         const bitrate = parseFloat(row.bitrate_kbps);
 
         if (!isNaN(bitrate)) {
-          const chart = chartInstanceRef.current;
-          const globalSecStr = globalSec.toString(); // ✅ 문자열로 변환
-          const idx = chart.data.labels.indexOf(globalSecStr); // ✅ 문자열 비교
+          const globalSecStr = globalSec.toString();
+          const idx = chart.data.labels.indexOf(globalSecStr);
 
           if (idx !== -1) {
-            // 이미 label에 해당 초 있음 → 값 덮어쓰기
             chart.data.datasets[0].data[idx] = bitrate;
           } else {
-            // 없으면 새로 추가
-            chart.data.labels.push(globalSecStr);  // ✅ 문자열로 추가
+            chart.data.labels.push(globalSecStr);
             chart.data.datasets[0].data.push(bitrate);
           }
         }
@@ -145,7 +171,6 @@ export default function DashPlayer({ manifestUrl }) {
     };
 
     player.on(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
-
 
     return () => {
       player.off(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
@@ -172,14 +197,66 @@ export default function DashPlayer({ manifestUrl }) {
     return () => clearInterval(interval);
   }, [currentSegment, segmentStartTime, bitrateLog]);
 
+  // ✅ SW 등록 + 프로파일 전송
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (e.data?.type === 'LOG') console.log(e.data.msg);
+    };
+    navigator.serviceWorker?.addEventListener('message', onMsg);
+
+    (async () => {
+      if ('serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.register('/throttle-sw.js', { scope: '/' });
+          await navigator.serviceWorker.ready;
+
+          if (!navigator.serviceWorker.controller) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              sendProfile(currentProfileRef.current);
+            });
+          } else {
+            sendProfile('off');
+          }
+        } catch (err) {
+          console.warn('SW 등록 실패:', err);
+        }
+      }
+    })();
+
+    return () => navigator.serviceWorker?.removeEventListener('message', onMsg);
+  }, []);
+
+  const sendProfile = (p) => {
+    currentProfileRef.current = p;
+    setUiProfile(p);
+
+    if (navigator.serviceWorker?.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SET_PROFILE',
+        profile: p,
+      });
+      console.log(`[UI] Network profile → ${p}`);
+    } else {
+      console.warn('[SW] 아직 제어권 없음');
+    }
+  };
+
   return (
     <div className="dash-container">
       <div className="dash-video-wrapper">
         <video ref={videoRef} className="dash-video" controls />
       </div>
+
+      <div className="throttle-controls">
+        <span className="throttle-label">Network:</span>
+        <button className={`throttle-btn ${uiProfile === 'fast' ? 'active' : ''}`} onClick={() => sendProfile('fast')}>Fast</button>
+        <button className={`throttle-btn ${uiProfile === 'slow' ? 'active' : ''}`} onClick={() => sendProfile('slow')}>Slow</button>
+        <button className={`throttle-btn ${uiProfile === 'off' ? 'active' : ''}`} onClick={() => sendProfile('off')}>Off</button>
+      </div>
+
       <div className="dash-chart">
         <canvas ref={chartRef} />
       </div>
     </div>
   );
-  }
+}
