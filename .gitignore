@@ -28,3 +28,4 @@ dist-ssr
 *.mp4
 *.m4s
 node_modules
+plots/
