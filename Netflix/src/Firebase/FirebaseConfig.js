@@ -3,6 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
 //은재 정보
+
 const firebaseConfig = {
   apiKey: "AIzaSyCqNwC1ytNe5F4s0tbmXAg9Vf9IpMgbc3A",
   authDomain: "netflix-e3fed.firebaseapp.com",

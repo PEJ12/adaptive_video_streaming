@@ -16,6 +16,34 @@ import { AuthContext } from "../Context/UserContext";
 import GoogleLogo from "../images/GoogleLogo.png";
 import WelcomePageBanner from "../images/WelcomePageBanner.jpg";
 
+// [FIX] 최초 로그인 시 사용자 문서를 보장하는 유틸
+async function ensureUserLists(uid, email) {
+  const EmptyArray = [];
+  // Users/{uid} 기본 프로필 문서 보장
+  await setDoc(
+    doc(db, "Users", uid),
+    { email, Uid: uid },
+    { merge: true } // [FIX] 기존 있으면 덮지 않고 합치기
+  );
+  // MyList / WatchedMovies / LikedMovies 문서 보장
+  const myListRef = doc(db, "MyList", uid);
+  const watchedRef = doc(db, "WatchedMovies", uid);
+  const likedRef = doc(db, "LikedMovies", uid);
+
+  // [FIX] 없으면 생성 (존재 체크)
+  if (!(await getDoc(myListRef)).exists()) {
+    await setDoc(myListRef, { movies: EmptyArray }, { merge: true });
+  }
+  if (!(await getDoc(watchedRef)).exists()) {
+    await setDoc(watchedRef, { movies: EmptyArray }, { merge: true });
+  }
+  if (!(await getDoc(likedRef)).exists()) {
+    await setDoc(likedRef, { movies: EmptyArray }, { merge: true });
+  }
+}
+
+
+
 function SignIn() {
   const { User, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -32,11 +60,12 @@ function SignIn() {
     const auth = getAuth();
     // Firebase Authentication을 사용하여 로그인 처리
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         // Signed in (성공시)
         const user = userCredential.user; // user 객체 반환
         console.log(user);
         if (user != null) {
+          await ensureUserLists(user.uid, user.email); 
           navigate("/"); //로그인 성공 후 홈으로 이동
         }
       })
