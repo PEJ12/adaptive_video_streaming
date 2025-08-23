@@ -6,7 +6,6 @@ export default [
     id: 1,
     title: '영상 1',
     // 서버에서 제공하는 MPD manifest 경로
-    //manifest: 'http://localhost:8000/stream/husky_encode10/manifest.mpd',
     manifest: 'http://localhost:8000/stream/husky/manifest.mpd',
     thumb: '/assets/thumbs/video1.png', // 썸네일 이미지 경로
   },
