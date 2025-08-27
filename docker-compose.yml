@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./server
+    container_name: bitflow-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/app   # 로컬 server 폴더와 컨테이너 동기화
+    restart: always
