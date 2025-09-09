@@ -31,7 +31,7 @@ import re
 
 
 INPUT_VIDEOS = [
-    ("Sports", "../input/Sports.mp4")
+    ("lol", "../input/lol.mp4")
 ]
 #INPUT_MP4 = "../input/husky.mp4"
 TMP_SEG_DIR = "./static/husky/segments"

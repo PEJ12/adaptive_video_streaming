@@ -1,0 +1,860 @@
+=== [husky] 영상 인코딩 시작 ===
+[husky.mp4] 영상 길이: 130.23초
+[husky.mp4] 생성할 세그먼트 수: 66개 (마지막 세그먼트: 0.23초)
+[husky.mp4] ✓ segment_0.mp4 생성완료 (0.0s ~ 2.0s, 2.0초)
+[husky.mp4] ✓ segment_1.mp4 생성완료 (2.0s ~ 4.0s, 2.0초)
+[husky.mp4] ✓ segment_2.mp4 생성완료 (4.0s ~ 6.0s, 2.0초)
+[husky.mp4] ✓ segment_3.mp4 생성완료 (6.0s ~ 8.0s, 2.0초)
+[husky.mp4] ✓ segment_4.mp4 생성완료 (8.0s ~ 10.0s, 2.0초)
+[husky.mp4] ✓ segment_5.mp4 생성완료 (10.0s ~ 12.0s, 2.0초)
+[husky.mp4] ✓ segment_6.mp4 생성완료 (12.0s ~ 14.0s, 2.0초)
+[husky.mp4] ✓ segment_7.mp4 생성완료 (14.0s ~ 16.0s, 2.0초)
+[husky.mp4] ✓ segment_8.mp4 생성완료 (16.0s ~ 18.0s, 2.0초)
+[husky.mp4] ✓ segment_9.mp4 생성완료 (18.0s ~ 20.0s, 2.0초)
+[husky.mp4] ✓ segment_10.mp4 생성완료 (20.0s ~ 22.0s, 2.0초)
+[husky.mp4] ✓ segment_11.mp4 생성완료 (22.0s ~ 24.0s, 2.0초)
+[husky.mp4] ✓ segment_12.mp4 생성완료 (24.0s ~ 26.0s, 2.0초)
+[husky.mp4] ✓ segment_13.mp4 생성완료 (26.0s ~ 28.0s, 2.0초)
+[husky.mp4] ✓ segment_14.mp4 생성완료 (28.0s ~ 30.0s, 2.0초)
+[husky.mp4] ✓ segment_15.mp4 생성완료 (30.0s ~ 32.0s, 2.0초)
+[husky.mp4] ✓ segment_16.mp4 생성완료 (32.0s ~ 34.0s, 2.0초)
+[husky.mp4] ✓ segment_17.mp4 생성완료 (34.0s ~ 36.0s, 2.0초)
+[husky.mp4] ✓ segment_18.mp4 생성완료 (36.0s ~ 38.0s, 2.0초)
+[husky.mp4] ✓ segment_19.mp4 생성완료 (38.0s ~ 40.0s, 2.0초)
+[husky.mp4] ✓ segment_20.mp4 생성완료 (40.0s ~ 42.0s, 2.0초)
+[husky.mp4] ✓ segment_21.mp4 생성완료 (42.0s ~ 44.0s, 2.0초)
+[husky.mp4] ✓ segment_22.mp4 생성완료 (44.0s ~ 46.0s, 2.0초)
+[husky.mp4] ✓ segment_23.mp4 생성완료 (46.0s ~ 48.0s, 2.0초)
+[husky.mp4] ✓ segment_24.mp4 생성완료 (48.0s ~ 50.0s, 2.0초)
+[husky.mp4] ✓ segment_25.mp4 생성완료 (50.0s ~ 52.0s, 2.0초)
+[husky.mp4] ✓ segment_26.mp4 생성완료 (52.0s ~ 54.0s, 2.0초)
+[husky.mp4] ✓ segment_27.mp4 생성완료 (54.0s ~ 56.0s, 2.0초)
+[husky.mp4] ✓ segment_28.mp4 생성완료 (56.0s ~ 58.0s, 2.0초)
+[husky.mp4] ✓ segment_29.mp4 생성완료 (58.0s ~ 60.0s, 2.0초)
+[husky.mp4] ✓ segment_30.mp4 생성완료 (60.0s ~ 62.0s, 2.0초)
+[husky.mp4] ✓ segment_31.mp4 생성완료 (62.0s ~ 64.0s, 2.0초)
+[husky.mp4] ✓ segment_32.mp4 생성완료 (64.0s ~ 66.0s, 2.0초)
+[husky.mp4] ✓ segment_33.mp4 생성완료 (66.0s ~ 68.0s, 2.0초)
+[husky.mp4] ✓ segment_34.mp4 생성완료 (68.0s ~ 70.0s, 2.0초)
+[husky.mp4] ✓ segment_35.mp4 생성완료 (70.0s ~ 72.0s, 2.0초)
+[husky.mp4] ✓ segment_36.mp4 생성완료 (72.0s ~ 74.0s, 2.0초)
+[husky.mp4] ✓ segment_37.mp4 생성완료 (74.0s ~ 76.0s, 2.0초)
+[husky.mp4] ✓ segment_38.mp4 생성완료 (76.0s ~ 78.0s, 2.0초)
+[husky.mp4] ✓ segment_39.mp4 생성완료 (78.0s ~ 80.0s, 2.0초)
+[husky.mp4] ✓ segment_40.mp4 생성완료 (80.0s ~ 82.0s, 2.0초)
+[husky.mp4] ✓ segment_41.mp4 생성완료 (82.0s ~ 84.0s, 2.0초)
+[husky.mp4] ✓ segment_42.mp4 생성완료 (84.0s ~ 86.0s, 2.0초)
+[husky.mp4] ✓ segment_43.mp4 생성완료 (86.0s ~ 88.0s, 2.0초)
+[husky.mp4] ✓ segment_44.mp4 생성완료 (88.0s ~ 90.0s, 2.0초)
+[husky.mp4] ✓ segment_45.mp4 생성완료 (90.0s ~ 92.0s, 2.0초)
+[husky.mp4] ✓ segment_46.mp4 생성완료 (92.0s ~ 94.0s, 2.0초)
+[husky.mp4] ✓ segment_47.mp4 생성완료 (94.0s ~ 96.0s, 2.0초)
+[husky.mp4] ✓ segment_48.mp4 생성완료 (96.0s ~ 98.0s, 2.0초)
+[husky.mp4] ✓ segment_49.mp4 생성완료 (98.0s ~ 100.0s, 2.0초)
+[husky.mp4] ✓ segment_50.mp4 생성완료 (100.0s ~ 102.0s, 2.0초)
+[husky.mp4] ✓ segment_51.mp4 생성완료 (102.0s ~ 104.0s, 2.0초)
+[husky.mp4] ✓ segment_52.mp4 생성완료 (104.0s ~ 106.0s, 2.0초)
+[husky.mp4] ✓ segment_53.mp4 생성완료 (106.0s ~ 108.0s, 2.0초)
+[husky.mp4] ✓ segment_54.mp4 생성완료 (108.0s ~ 110.0s, 2.0초)
+[husky.mp4] ✓ segment_55.mp4 생성완료 (110.0s ~ 112.0s, 2.0초)
+[husky.mp4] ✓ segment_56.mp4 생성완료 (112.0s ~ 114.0s, 2.0초)
+[husky.mp4] ✓ segment_57.mp4 생성완료 (114.0s ~ 116.0s, 2.0초)
+[husky.mp4] ✓ segment_58.mp4 생성완료 (116.0s ~ 118.0s, 2.0초)
+[husky.mp4] ✓ segment_59.mp4 생성완료 (118.0s ~ 120.0s, 2.0초)
+[husky.mp4] ✓ segment_60.mp4 생성완료 (120.0s ~ 122.0s, 2.0초)
+[husky.mp4] ✓ segment_61.mp4 생성완료 (122.0s ~ 124.0s, 2.0초)
+[husky.mp4] ✓ segment_62.mp4 생성완료 (124.0s ~ 126.0s, 2.0초)
+[husky.mp4] ✓ segment_63.mp4 생성완료 (126.0s ~ 128.0s, 2.0초)
+[husky.mp4] ✓ segment_64.mp4 생성완료 (128.0s ~ 130.0s, 2.0초)
+[husky.mp4] ✓ segment_65.mp4 생성완료 (130.0s ~ 130.2s, 0.2초)
+[husky.mp4] === 분할 완료 ===
+[husky.mp4] 성공: 66개 세그먼트
+
+[husky]=== 영상 특성 추출 및 인코딩 파라미터 최적화 ===
+[segment_0 원본: 1280x720] CRF=35, maxrate=8291k
+[segment_0 640x360] CRF=34, maxrate=2073k
+[segment_0 854x480] CRF=34, maxrate=3688k
+[segment_0 1280x720] CRF=35, maxrate=8291k
+[segment_0 1920x1080] CRF=35, maxrate=18655k
+[segment_1 원본: 1280x720] CRF=35, maxrate=8287k
+[segment_1 640x360] CRF=34, maxrate=2072k
+[segment_1 854x480] CRF=34, maxrate=3686k
+[segment_1 1280x720] CRF=35, maxrate=8287k
+[segment_1 1920x1080] CRF=35, maxrate=18646k
+[segment_2 원본: 1280x720] CRF=35, maxrate=8207k
+[segment_2 640x360] CRF=34, maxrate=2052k
+[segment_2 854x480] CRF=34, maxrate=3650k
+[segment_2 1280x720] CRF=35, maxrate=8207k
+[segment_2 1920x1080] CRF=35, maxrate=18466k
+[segment_3 원본: 1280x720] CRF=35, maxrate=8290k
+[segment_3 640x360] CRF=34, maxrate=2072k
+[segment_3 854x480] CRF=34, maxrate=3687k
+[segment_3 1280x720] CRF=35, maxrate=8290k
+[segment_3 1920x1080] CRF=35, maxrate=18652k
+[segment_4 원본: 1280x720] CRF=35, maxrate=8319k
+[segment_4 640x360] CRF=34, maxrate=2080k
+[segment_4 854x480] CRF=34, maxrate=3700k
+[segment_4 1280x720] CRF=35, maxrate=8319k
+[segment_4 1920x1080] CRF=35, maxrate=18718k
+[segment_5 원본: 1280x720] CRF=36, maxrate=8318k
+[segment_5 640x360] CRF=35, maxrate=2080k
+[segment_5 854x480] CRF=35, maxrate=3700k
+[segment_5 1280x720] CRF=36, maxrate=8318k
+[segment_5 1920x1080] CRF=36, maxrate=18716k
+[segment_6 원본: 1280x720] CRF=36, maxrate=8471k
+[segment_6 640x360] CRF=35, maxrate=2118k
+[segment_6 854x480] CRF=35, maxrate=3768k
+[segment_6 1280x720] CRF=36, maxrate=8471k
+[segment_6 1920x1080] CRF=36, maxrate=19060k
+[segment_7 원본: 1280x720] CRF=36, maxrate=8341k
+[segment_7 640x360] CRF=35, maxrate=2085k
+[segment_7 854x480] CRF=35, maxrate=3710k
+[segment_7 1280x720] CRF=36, maxrate=8341k
+[segment_7 1920x1080] CRF=36, maxrate=18767k
+[segment_8 원본: 1280x720] CRF=36, maxrate=8273k
+[segment_8 640x360] CRF=35, maxrate=2068k
+[segment_8 854x480] CRF=35, maxrate=3680k
+[segment_8 1280x720] CRF=36, maxrate=8273k
+[segment_8 1920x1080] CRF=36, maxrate=18614k
+[segment_9 원본: 1280x720] CRF=36, maxrate=8279k
+[segment_9 640x360] CRF=35, maxrate=2070k
+[segment_9 854x480] CRF=35, maxrate=3682k
+[segment_9 1280x720] CRF=36, maxrate=8279k
+[segment_9 1920x1080] CRF=36, maxrate=18628k
+[segment_10 원본: 1280x720] CRF=36, maxrate=8324k
+[segment_10 640x360] CRF=35, maxrate=2081k
+[segment_10 854x480] CRF=35, maxrate=3702k
+[segment_10 1280x720] CRF=36, maxrate=8324k
+[segment_10 1920x1080] CRF=36, maxrate=18729k
+[segment_11 원본: 1280x720] CRF=35, maxrate=8174k
+[segment_11 640x360] CRF=34, maxrate=2044k
+[segment_11 854x480] CRF=34, maxrate=3636k
+[segment_11 1280x720] CRF=35, maxrate=8174k
+[segment_11 1920x1080] CRF=35, maxrate=18392k
+[segment_12 원본: 1280x720] CRF=35, maxrate=8224k
+[segment_12 640x360] CRF=34, maxrate=2056k
+[segment_12 854x480] CRF=34, maxrate=3658k
+[segment_12 1280x720] CRF=35, maxrate=8224k
+[segment_12 1920x1080] CRF=35, maxrate=18504k
+[segment_13 원본: 1280x720] CRF=35, maxrate=8206k
+[segment_13 640x360] CRF=34, maxrate=2052k
+[segment_13 854x480] CRF=34, maxrate=3650k
+[segment_13 1280x720] CRF=35, maxrate=8206k
+[segment_13 1920x1080] CRF=35, maxrate=18464k
+[segment_14 원본: 1280x720] CRF=35, maxrate=8272k
+[segment_14 640x360] CRF=34, maxrate=2068k
+[segment_14 854x480] CRF=34, maxrate=3679k
+[segment_14 1280x720] CRF=35, maxrate=8272k
+[segment_14 1920x1080] CRF=35, maxrate=18612k
+[segment_15 원본: 1280x720] CRF=35, maxrate=8271k
+[segment_15 640x360] CRF=34, maxrate=2068k
+[segment_15 854x480] CRF=34, maxrate=3679k
+[segment_15 1280x720] CRF=35, maxrate=8271k
+[segment_15 1920x1080] CRF=35, maxrate=18610k
+[segment_16 원본: 1280x720] CRF=35, maxrate=8214k
+[segment_16 640x360] CRF=34, maxrate=2054k
+[segment_16 854x480] CRF=34, maxrate=3654k
+[segment_16 1280x720] CRF=35, maxrate=8214k
+[segment_16 1920x1080] CRF=35, maxrate=18482k
+[segment_17 원본: 1280x720] CRF=36, maxrate=8280k
+[segment_17 640x360] CRF=35, maxrate=2070k
+[segment_17 854x480] CRF=35, maxrate=3683k
+[segment_17 1280x720] CRF=36, maxrate=8280k
+[segment_17 1920x1080] CRF=36, maxrate=18630k
+[segment_18 원본: 1280x720] CRF=36, maxrate=8380k
+[segment_18 640x360] CRF=35, maxrate=2095k
+[segment_18 854x480] CRF=35, maxrate=3727k
+[segment_18 1280x720] CRF=36, maxrate=8380k
+[segment_18 1920x1080] CRF=36, maxrate=18855k
+[segment_19 원본: 1280x720] CRF=36, maxrate=8313k
+[segment_19 640x360] CRF=35, maxrate=2078k
+[segment_19 854x480] CRF=35, maxrate=3698k
+[segment_19 1280x720] CRF=36, maxrate=8313k
+[segment_19 1920x1080] CRF=36, maxrate=18704k
+[segment_20 원본: 1280x720] CRF=35, maxrate=8240k
+[segment_20 640x360] CRF=34, maxrate=2060k
+[segment_20 854x480] CRF=34, maxrate=3665k
+[segment_20 1280x720] CRF=35, maxrate=8240k
+[segment_20 1920x1080] CRF=35, maxrate=18540k
+[segment_21 원본: 1280x720] CRF=36, maxrate=8188k
+[segment_21 640x360] CRF=35, maxrate=2047k
+[segment_21 854x480] CRF=35, maxrate=3642k
+[segment_21 1280x720] CRF=36, maxrate=8188k
+[segment_21 1920x1080] CRF=36, maxrate=18423k
+[segment_22 원본: 1280x720] CRF=36, maxrate=8235k
+[segment_22 640x360] CRF=35, maxrate=2059k
+[segment_22 854x480] CRF=35, maxrate=3663k
+[segment_22 1280x720] CRF=36, maxrate=8235k
+[segment_22 1920x1080] CRF=36, maxrate=18529k
+[segment_23 원본: 1280x720] CRF=36, maxrate=8406k
+[segment_23 640x360] CRF=35, maxrate=2102k
+[segment_23 854x480] CRF=35, maxrate=3739k
+[segment_23 1280x720] CRF=36, maxrate=8406k
+[segment_23 1920x1080] CRF=36, maxrate=18914k
+[segment_24 원본: 1280x720] CRF=35, maxrate=8338k
+[segment_24 640x360] CRF=34, maxrate=2084k
+[segment_24 854x480] CRF=34, maxrate=3709k
+[segment_24 1280x720] CRF=35, maxrate=8338k
+[segment_24 1920x1080] CRF=35, maxrate=18760k
+[segment_25 원본: 1280x720] CRF=35, maxrate=8287k
+[segment_25 640x360] CRF=34, maxrate=2072k
+[segment_25 854x480] CRF=34, maxrate=3686k
+[segment_25 1280x720] CRF=35, maxrate=8287k
+[segment_25 1920x1080] CRF=35, maxrate=18646k
+[segment_26 원본: 1280x720] CRF=36, maxrate=8318k
+[segment_26 640x360] CRF=35, maxrate=2080k
+[segment_26 854x480] CRF=35, maxrate=3700k
+[segment_26 1280x720] CRF=36, maxrate=8318k
+[segment_26 1920x1080] CRF=36, maxrate=18716k
+[segment_27 원본: 1280x720] CRF=35, maxrate=8251k
+[segment_27 640x360] CRF=34, maxrate=2063k
+[segment_27 854x480] CRF=34, maxrate=3670k
+[segment_27 1280x720] CRF=35, maxrate=8251k
+[segment_27 1920x1080] CRF=35, maxrate=18565k
+[segment_28 원본: 1280x720] CRF=36, maxrate=8269k
+[segment_28 640x360] CRF=35, maxrate=2067k
+[segment_28 854x480] CRF=35, maxrate=3678k
+[segment_28 1280x720] CRF=36, maxrate=8269k
+[segment_28 1920x1080] CRF=36, maxrate=18605k
+[segment_29 원본: 1280x720] CRF=35, maxrate=8238k
+[segment_29 640x360] CRF=34, maxrate=2060k
+[segment_29 854x480] CRF=34, maxrate=3664k
+[segment_29 1280x720] CRF=35, maxrate=8238k
+[segment_29 1920x1080] CRF=35, maxrate=18536k
+[segment_30 원본: 1280x720] CRF=35, maxrate=8218k
+[segment_30 640x360] CRF=34, maxrate=2054k
+[segment_30 854x480] CRF=34, maxrate=3655k
+[segment_30 1280x720] CRF=35, maxrate=8218k
+[segment_30 1920x1080] CRF=35, maxrate=18490k
+[segment_31 원본: 1280x720] CRF=36, maxrate=8282k
+[segment_31 640x360] CRF=35, maxrate=2070k
+[segment_31 854x480] CRF=35, maxrate=3684k
+[segment_31 1280x720] CRF=36, maxrate=8282k
+[segment_31 1920x1080] CRF=36, maxrate=18634k
+[segment_32 원본: 1280x720] CRF=37, maxrate=8614k
+[segment_32 640x360] CRF=36, maxrate=2154k
+[segment_32 854x480] CRF=36, maxrate=3831k
+[segment_32 1280x720] CRF=37, maxrate=8614k
+[segment_32 1920x1080] CRF=37, maxrate=19382k
+[segment_33 원본: 1280x720] CRF=36, maxrate=8374k
+[segment_33 640x360] CRF=35, maxrate=2094k
+[segment_33 854x480] CRF=35, maxrate=3725k
+[segment_33 1280x720] CRF=36, maxrate=8374k
+[segment_33 1920x1080] CRF=36, maxrate=18842k
+[segment_34 원본: 1280x720] CRF=35, maxrate=8164k
+[segment_34 640x360] CRF=34, maxrate=2041k
+[segment_34 854x480] CRF=34, maxrate=3631k
+[segment_34 1280x720] CRF=35, maxrate=8164k
+[segment_34 1920x1080] CRF=35, maxrate=18369k
+[segment_35 원본: 1280x720] CRF=35, maxrate=8277k
+[segment_35 640x360] CRF=34, maxrate=2069k
+[segment_35 854x480] CRF=34, maxrate=3682k
+[segment_35 1280x720] CRF=35, maxrate=8277k
+[segment_35 1920x1080] CRF=35, maxrate=18623k
+[segment_36 원본: 1280x720] CRF=36, maxrate=8430k
+[segment_36 640x360] CRF=35, maxrate=2108k
+[segment_36 854x480] CRF=35, maxrate=3750k
+[segment_36 1280x720] CRF=36, maxrate=8430k
+[segment_36 1920x1080] CRF=36, maxrate=18968k
+[segment_37 원본: 1280x720] CRF=36, maxrate=8364k
+[segment_37 640x360] CRF=35, maxrate=2091k
+[segment_37 854x480] CRF=35, maxrate=3720k
+[segment_37 1280x720] CRF=36, maxrate=8364k
+[segment_37 1920x1080] CRF=36, maxrate=18819k
+[segment_38 원본: 1280x720] CRF=35, maxrate=8282k
+[segment_38 640x360] CRF=34, maxrate=2070k
+[segment_38 854x480] CRF=34, maxrate=3684k
+[segment_38 1280x720] CRF=35, maxrate=8282k
+[segment_38 1920x1080] CRF=35, maxrate=18634k
+[segment_39 원본: 1280x720] CRF=35, maxrate=8264k
+[segment_39 640x360] CRF=34, maxrate=2066k
+[segment_39 854x480] CRF=34, maxrate=3676k
+[segment_39 1280x720] CRF=35, maxrate=8264k
+[segment_39 1920x1080] CRF=35, maxrate=18594k
+[segment_40 원본: 1280x720] CRF=36, maxrate=8348k
+[segment_40 640x360] CRF=35, maxrate=2087k
+[segment_40 854x480] CRF=35, maxrate=3713k
+[segment_40 1280x720] CRF=36, maxrate=8348k
+[segment_40 1920x1080] CRF=36, maxrate=18783k
+[segment_41 원본: 1280x720] CRF=36, maxrate=8342k
+[segment_41 640x360] CRF=35, maxrate=2086k
+[segment_41 854x480] CRF=35, maxrate=3710k
+[segment_41 1280x720] CRF=36, maxrate=8342k
+[segment_41 1920x1080] CRF=36, maxrate=18770k
+[segment_42 원본: 1280x720] CRF=36, maxrate=8285k
+[segment_42 640x360] CRF=35, maxrate=2071k
+[segment_42 854x480] CRF=35, maxrate=3685k
+[segment_42 1280x720] CRF=36, maxrate=8285k
+[segment_42 1920x1080] CRF=36, maxrate=18641k
+[segment_43 원본: 1280x720] CRF=35, maxrate=8300k
+[segment_43 640x360] CRF=34, maxrate=2075k
+[segment_43 854x480] CRF=34, maxrate=3692k
+[segment_43 1280x720] CRF=35, maxrate=8300k
+[segment_43 1920x1080] CRF=35, maxrate=18675k
+[segment_44 원본: 1280x720] CRF=36, maxrate=8323k
+[segment_44 640x360] CRF=35, maxrate=2081k
+[segment_44 854x480] CRF=35, maxrate=3702k
+[segment_44 1280x720] CRF=36, maxrate=8323k
+[segment_44 1920x1080] CRF=36, maxrate=18727k
+[segment_45 원본: 1280x720] CRF=36, maxrate=8382k
+[segment_45 640x360] CRF=35, maxrate=2096k
+[segment_45 854x480] CRF=35, maxrate=3728k
+[segment_45 1280x720] CRF=36, maxrate=8382k
+[segment_45 1920x1080] CRF=36, maxrate=18860k
+[segment_46 원본: 1280x720] CRF=36, maxrate=8288k
+[segment_46 640x360] CRF=35, maxrate=2072k
+[segment_46 854x480] CRF=35, maxrate=3686k
+[segment_46 1280x720] CRF=36, maxrate=8288k
+[segment_46 1920x1080] CRF=36, maxrate=18648k
+[segment_47 원본: 1280x720] CRF=36, maxrate=8254k
+[segment_47 640x360] CRF=35, maxrate=2064k
+[segment_47 854x480] CRF=35, maxrate=3671k
+[segment_47 1280x720] CRF=36, maxrate=8254k
+[segment_47 1920x1080] CRF=36, maxrate=18572k
+[segment_48 원본: 1280x720] CRF=35, maxrate=8243k
+[segment_48 640x360] CRF=34, maxrate=2061k
+[segment_48 854x480] CRF=34, maxrate=3666k
+[segment_48 1280x720] CRF=35, maxrate=8243k
+[segment_48 1920x1080] CRF=35, maxrate=18547k
+[segment_49 원본: 1280x720] CRF=35, maxrate=8191k
+[segment_49 640x360] CRF=34, maxrate=2048k
+[segment_49 854x480] CRF=34, maxrate=3643k
+[segment_49 1280x720] CRF=35, maxrate=8191k
+[segment_49 1920x1080] CRF=35, maxrate=18430k
+[segment_50 원본: 1280x720] CRF=36, maxrate=8466k
+[segment_50 640x360] CRF=35, maxrate=2116k
+[segment_50 854x480] CRF=35, maxrate=3766k
+[segment_50 1280x720] CRF=36, maxrate=8466k
+[segment_50 1920x1080] CRF=36, maxrate=19048k
+[segment_51 원본: 1280x720] CRF=36, maxrate=8445k
+[segment_51 640x360] CRF=35, maxrate=2111k
+[segment_51 854x480] CRF=35, maxrate=3756k
+[segment_51 1280x720] CRF=36, maxrate=8445k
+[segment_51 1920x1080] CRF=36, maxrate=19001k
+[segment_52 원본: 1280x720] CRF=36, maxrate=8374k
+[segment_52 640x360] CRF=35, maxrate=2094k
+[segment_52 854x480] CRF=35, maxrate=3725k
+[segment_52 1280x720] CRF=36, maxrate=8374k
+[segment_52 1920x1080] CRF=36, maxrate=18842k
+[segment_53 원본: 1280x720] CRF=35, maxrate=8304k
+[segment_53 640x360] CRF=34, maxrate=2076k
+[segment_53 854x480] CRF=34, maxrate=3694k
+[segment_53 1280x720] CRF=35, maxrate=8304k
+[segment_53 1920x1080] CRF=35, maxrate=18684k
+[segment_54 원본: 1280x720] CRF=35, maxrate=8237k
+[segment_54 640x360] CRF=34, maxrate=2059k
+[segment_54 854x480] CRF=34, maxrate=3664k
+[segment_54 1280x720] CRF=35, maxrate=8237k
+[segment_54 1920x1080] CRF=35, maxrate=18533k
+[segment_55 원본: 1280x720] CRF=36, maxrate=8276k
+[segment_55 640x360] CRF=35, maxrate=2069k
+[segment_55 854x480] CRF=35, maxrate=3681k
+[segment_55 1280x720] CRF=36, maxrate=8276k
+[segment_55 1920x1080] CRF=36, maxrate=18621k
+[segment_56 원본: 1280x720] CRF=36, maxrate=8288k
+[segment_56 640x360] CRF=35, maxrate=2072k
+[segment_56 854x480] CRF=35, maxrate=3686k
+[segment_56 1280x720] CRF=36, maxrate=8288k
+[segment_56 1920x1080] CRF=36, maxrate=18648k
+[segment_57 원본: 1280x720] CRF=35, maxrate=8290k
+[segment_57 640x360] CRF=34, maxrate=2072k
+[segment_57 854x480] CRF=34, maxrate=3687k
+[segment_57 1280x720] CRF=35, maxrate=8290k
+[segment_57 1920x1080] CRF=35, maxrate=18652k
+[segment_58 원본: 1280x720] CRF=35, maxrate=8257k
+[segment_58 640x360] CRF=34, maxrate=2064k
+[segment_58 854x480] CRF=34, maxrate=3673k
+[segment_58 1280x720] CRF=35, maxrate=8257k
+[segment_58 1920x1080] CRF=35, maxrate=18578k
+[segment_59 원본: 1280x720] CRF=35, maxrate=8241k
+[segment_59 640x360] CRF=34, maxrate=2060k
+[segment_59 854x480] CRF=34, maxrate=3666k
+[segment_59 1280x720] CRF=35, maxrate=8241k
+[segment_59 1920x1080] CRF=35, maxrate=18542k
+[segment_60 원본: 1280x720] CRF=35, maxrate=8176k
+[segment_60 640x360] CRF=34, maxrate=2044k
+[segment_60 854x480] CRF=34, maxrate=3637k
+[segment_60 1280x720] CRF=35, maxrate=8176k
+[segment_60 1920x1080] CRF=35, maxrate=18396k
+[segment_61 원본: 1280x720] CRF=35, maxrate=8246k
+[segment_61 640x360] CRF=34, maxrate=2062k
+[segment_61 854x480] CRF=34, maxrate=3668k
+[segment_61 1280x720] CRF=35, maxrate=8246k
+[segment_61 1920x1080] CRF=35, maxrate=18554k
+[segment_62 원본: 1280x720] CRF=35, maxrate=8219k
+[segment_62 640x360] CRF=34, maxrate=2055k
+[segment_62 854x480] CRF=34, maxrate=3656k
+[segment_62 1280x720] CRF=35, maxrate=8219k
+[segment_62 1920x1080] CRF=35, maxrate=18493k
+[segment_63 원본: 1280x720] CRF=35, maxrate=8288k
+[segment_63 640x360] CRF=34, maxrate=2072k
+[segment_63 854x480] CRF=34, maxrate=3686k
+[segment_63 1280x720] CRF=35, maxrate=8288k
+[segment_63 1920x1080] CRF=35, maxrate=18648k
+[segment_64 원본: 1280x720] CRF=35, maxrate=8210k
+[segment_64 640x360] CRF=34, maxrate=2052k
+[segment_64 854x480] CRF=34, maxrate=3652k
+[segment_64 1280x720] CRF=35, maxrate=8210k
+[segment_64 1920x1080] CRF=35, maxrate=18472k
+[segment_65] (last, reuse prev): CRF=35, maxrate=8210k
+[segment_65 640x360] CRF=34, maxrate=2052k
+[segment_65 854x480] CRF=34, maxrate=3652k
+[segment_65 1280x720] CRF=35, maxrate=8210k
+[segment_65 1920x1080] CRF=35, maxrate=18472k
+[husky] === AI 인코딩 완료 ===
+
+[husky] === 해상도별 concat.txt 생성 === 
+[360p] concat.txt: ./static/husky/concat_dir/concat_360p.txt
+[480p] concat.txt: ./static/husky/concat_dir/concat_480p.txt
+[720p] concat.txt: ./static/husky/concat_dir/concat_720p.txt
+[1080p] concat.txt: ./static/husky/concat_dir/concat_1080p.txt
+[husky] === 해상도별 concat.txt 생성 완료 === 
+
+[husky] === 해상도별 세그먼트 병합 === 
+[360p] mp4 병합: ./static/husky/merged/merged_ai_360p.mp4
+[480p] mp4 병합: ./static/husky/merged/merged_ai_480p.mp4
+[720p] mp4 병합: ./static/husky/merged/merged_ai_720p.mp4
+[1080p] mp4 병합: ./static/husky/merged/merged_ai_1080p.mp4
+[husky] === 해상도별 세그먼트 병합 mp4 생성 완료 === 
+
+[husky] === 해상도별 mp4 재인코딩 === 
+[360p] mp4 재인코딩: ./static/husky/fixed/merged_ai_fixed_360p.mp4
+[480p] mp4 재인코딩: ./static/husky/fixed/merged_ai_fixed_480p.mp4
+[720p] mp4 재인코딩: ./static/husky/fixed/merged_ai_fixed_720p.mp4
+[1080p] mp4 재인코딩: ./static/husky/fixed/merged_ai_fixed_1080p.mp4
+[husky] === 해상도별 MP4 재인코딩 완료 === 
+
+[husky] === DASH MPD/m4s 생성 시작=== 
+[1080p] MP4Box 실행: ['MP4Box', '-dash', '2000', '-frag', '2000', '-rap', '-profile', 'dashavc264:live', '-segment-timeline', '-out', './static/husky/mp4box/manifest.mpd', './static/husky/fixed/merged_ai_fixed_360p.mp4#video:name=360p', './static/husky/fixed/merged_ai_fixed_480p.mp4#video:name=480p', './static/husky/fixed/merged_ai_fixed_720p.mp4#video:name=720p', './static/husky/fixed/merged_ai_fixed_1080p.mp4#video:name=1080p']
+[husky] === DASH MPD/m4s 생성 완료 === 
+
+=== [husky_encode13] 영상 인코딩 시작 ===
+[husky.mp4] 영상 길이: 130.23초
+[husky.mp4] 생성할 세그먼트 수: 66개 (마지막 세그먼트: 0.23초)
+[husky.mp4] ✓ segment_0.mp4 생성완료 (0.0s ~ 2.0s, 2.0초)
+[husky.mp4] ✓ segment_1.mp4 생성완료 (2.0s ~ 4.0s, 2.0초)
+[husky.mp4] ✓ segment_2.mp4 생성완료 (4.0s ~ 6.0s, 2.0초)
+[husky.mp4] ✓ segment_3.mp4 생성완료 (6.0s ~ 8.0s, 2.0초)
+[husky.mp4] ✓ segment_4.mp4 생성완료 (8.0s ~ 10.0s, 2.0초)
+[husky.mp4] ✓ segment_5.mp4 생성완료 (10.0s ~ 12.0s, 2.0초)
+[husky.mp4] ✓ segment_6.mp4 생성완료 (12.0s ~ 14.0s, 2.0초)
+[husky.mp4] ✓ segment_7.mp4 생성완료 (14.0s ~ 16.0s, 2.0초)
+[husky.mp4] ✓ segment_8.mp4 생성완료 (16.0s ~ 18.0s, 2.0초)
+[husky.mp4] ✓ segment_9.mp4 생성완료 (18.0s ~ 20.0s, 2.0초)
+[husky.mp4] ✓ segment_10.mp4 생성완료 (20.0s ~ 22.0s, 2.0초)
+[husky.mp4] ✓ segment_11.mp4 생성완료 (22.0s ~ 24.0s, 2.0초)
+[husky.mp4] ✓ segment_12.mp4 생성완료 (24.0s ~ 26.0s, 2.0초)
+[husky.mp4] ✓ segment_13.mp4 생성완료 (26.0s ~ 28.0s, 2.0초)
+[husky.mp4] ✓ segment_14.mp4 생성완료 (28.0s ~ 30.0s, 2.0초)
+[husky.mp4] ✓ segment_15.mp4 생성완료 (30.0s ~ 32.0s, 2.0초)
+[husky.mp4] ✓ segment_16.mp4 생성완료 (32.0s ~ 34.0s, 2.0초)
+[husky.mp4] ✓ segment_17.mp4 생성완료 (34.0s ~ 36.0s, 2.0초)
+[husky.mp4] ✓ segment_18.mp4 생성완료 (36.0s ~ 38.0s, 2.0초)
+[husky.mp4] ✓ segment_19.mp4 생성완료 (38.0s ~ 40.0s, 2.0초)
+[husky.mp4] ✓ segment_20.mp4 생성완료 (40.0s ~ 42.0s, 2.0초)
+[husky.mp4] ✓ segment_21.mp4 생성완료 (42.0s ~ 44.0s, 2.0초)
+[husky.mp4] ✓ segment_22.mp4 생성완료 (44.0s ~ 46.0s, 2.0초)
+[husky.mp4] ✓ segment_23.mp4 생성완료 (46.0s ~ 48.0s, 2.0초)
+[husky.mp4] ✓ segment_24.mp4 생성완료 (48.0s ~ 50.0s, 2.0초)
+[husky.mp4] ✓ segment_25.mp4 생성완료 (50.0s ~ 52.0s, 2.0초)
+[husky.mp4] ✓ segment_26.mp4 생성완료 (52.0s ~ 54.0s, 2.0초)
+[husky.mp4] ✓ segment_27.mp4 생성완료 (54.0s ~ 56.0s, 2.0초)
+[husky.mp4] ✓ segment_28.mp4 생성완료 (56.0s ~ 58.0s, 2.0초)
+[husky.mp4] ✓ segment_29.mp4 생성완료 (58.0s ~ 60.0s, 2.0초)
+[husky.mp4] ✓ segment_30.mp4 생성완료 (60.0s ~ 62.0s, 2.0초)
+[husky.mp4] ✓ segment_31.mp4 생성완료 (62.0s ~ 64.0s, 2.0초)
+[husky.mp4] ✓ segment_32.mp4 생성완료 (64.0s ~ 66.0s, 2.0초)
+[husky.mp4] ✓ segment_33.mp4 생성완료 (66.0s ~ 68.0s, 2.0초)
+[husky.mp4] ✓ segment_34.mp4 생성완료 (68.0s ~ 70.0s, 2.0초)
+[husky.mp4] ✓ segment_35.mp4 생성완료 (70.0s ~ 72.0s, 2.0초)
+[husky.mp4] ✓ segment_36.mp4 생성완료 (72.0s ~ 74.0s, 2.0초)
+[husky.mp4] ✓ segment_37.mp4 생성완료 (74.0s ~ 76.0s, 2.0초)
+[husky.mp4] ✓ segment_38.mp4 생성완료 (76.0s ~ 78.0s, 2.0초)
+[husky.mp4] ✓ segment_39.mp4 생성완료 (78.0s ~ 80.0s, 2.0초)
+[husky.mp4] ✓ segment_40.mp4 생성완료 (80.0s ~ 82.0s, 2.0초)
+[husky.mp4] ✓ segment_41.mp4 생성완료 (82.0s ~ 84.0s, 2.0초)
+[husky.mp4] ✓ segment_42.mp4 생성완료 (84.0s ~ 86.0s, 2.0초)
+[husky.mp4] ✓ segment_43.mp4 생성완료 (86.0s ~ 88.0s, 2.0초)
+[husky.mp4] ✓ segment_44.mp4 생성완료 (88.0s ~ 90.0s, 2.0초)
+[husky.mp4] ✓ segment_45.mp4 생성완료 (90.0s ~ 92.0s, 2.0초)
+[husky.mp4] ✓ segment_46.mp4 생성완료 (92.0s ~ 94.0s, 2.0초)
+[husky.mp4] ✓ segment_47.mp4 생성완료 (94.0s ~ 96.0s, 2.0초)
+[husky.mp4] ✓ segment_48.mp4 생성완료 (96.0s ~ 98.0s, 2.0초)
+[husky.mp4] ✓ segment_49.mp4 생성완료 (98.0s ~ 100.0s, 2.0초)
+[husky.mp4] ✓ segment_50.mp4 생성완료 (100.0s ~ 102.0s, 2.0초)
+[husky.mp4] ✓ segment_51.mp4 생성완료 (102.0s ~ 104.0s, 2.0초)
+[husky.mp4] ✓ segment_52.mp4 생성완료 (104.0s ~ 106.0s, 2.0초)
+[husky.mp4] ✓ segment_53.mp4 생성완료 (106.0s ~ 108.0s, 2.0초)
+[husky.mp4] ✓ segment_54.mp4 생성완료 (108.0s ~ 110.0s, 2.0초)
+[husky.mp4] ✓ segment_55.mp4 생성완료 (110.0s ~ 112.0s, 2.0초)
+[husky.mp4] ✓ segment_56.mp4 생성완료 (112.0s ~ 114.0s, 2.0초)
+[husky.mp4] ✓ segment_57.mp4 생성완료 (114.0s ~ 116.0s, 2.0초)
+[husky.mp4] ✓ segment_58.mp4 생성완료 (116.0s ~ 118.0s, 2.0초)
+[husky.mp4] ✓ segment_59.mp4 생성완료 (118.0s ~ 120.0s, 2.0초)
+[husky.mp4] ✓ segment_60.mp4 생성완료 (120.0s ~ 122.0s, 2.0초)
+[husky.mp4] ✓ segment_61.mp4 생성완료 (122.0s ~ 124.0s, 2.0초)
+[husky.mp4] ✓ segment_62.mp4 생성완료 (124.0s ~ 126.0s, 2.0초)
+[husky.mp4] ✓ segment_63.mp4 생성완료 (126.0s ~ 128.0s, 2.0초)
+[husky.mp4] ✓ segment_64.mp4 생성완료 (128.0s ~ 130.0s, 2.0초)
+[husky.mp4] ✓ segment_65.mp4 생성완료 (130.0s ~ 130.2s, 0.2초)
+[husky.mp4] === 분할 완료 ===
+[husky.mp4] 성공: 66개 세그먼트
+
+[husky_encode13]=== 영상 특성 추출 및 인코딩 파라미터 최적화 ===
+[segment_0 원본: 1280x720] CRF=35, maxrate=8291k
+[segment_0 640x360] CRF=34, maxrate=2073k
+[segment_0 854x480] CRF=34, maxrate=3688k
+[segment_0 1280x720] CRF=35, maxrate=8291k
+[segment_0 1920x1080] CRF=35, maxrate=18655k
+[segment_1 원본: 1280x720] CRF=35, maxrate=8287k
+[segment_1 640x360] CRF=34, maxrate=2072k
+[segment_1 854x480] CRF=34, maxrate=3686k
+[segment_1 1280x720] CRF=35, maxrate=8287k
+[segment_1 1920x1080] CRF=35, maxrate=18646k
+[segment_2 원본: 1280x720] CRF=35, maxrate=8207k
+[segment_2 640x360] CRF=34, maxrate=2052k
+[segment_2 854x480] CRF=34, maxrate=3650k
+[segment_2 1280x720] CRF=35, maxrate=8207k
+[segment_2 1920x1080] CRF=35, maxrate=18466k
+[segment_3 원본: 1280x720] CRF=35, maxrate=8290k
+[segment_3 640x360] CRF=34, maxrate=2072k
+[segment_3 854x480] CRF=34, maxrate=3687k
+[segment_3 1280x720] CRF=35, maxrate=8290k
+[segment_3 1920x1080] CRF=35, maxrate=18652k
+[segment_4 원본: 1280x720] CRF=35, maxrate=8319k
+[segment_4 640x360] CRF=34, maxrate=2080k
+[segment_4 854x480] CRF=34, maxrate=3700k
+[segment_4 1280x720] CRF=35, maxrate=8319k
+[segment_4 1920x1080] CRF=35, maxrate=18718k
+[segment_5 원본: 1280x720] CRF=36, maxrate=8318k
+[segment_5 640x360] CRF=35, maxrate=2080k
+[segment_5 854x480] CRF=35, maxrate=3700k
+[segment_5 1280x720] CRF=36, maxrate=8318k
+[segment_5 1920x1080] CRF=36, maxrate=18716k
+[segment_6 원본: 1280x720] CRF=36, maxrate=8471k
+[segment_6 640x360] CRF=35, maxrate=2118k
+[segment_6 854x480] CRF=35, maxrate=3768k
+[segment_6 1280x720] CRF=36, maxrate=8471k
+[segment_6 1920x1080] CRF=36, maxrate=19060k
+[segment_7 원본: 1280x720] CRF=36, maxrate=8341k
+[segment_7 640x360] CRF=35, maxrate=2085k
+[segment_7 854x480] CRF=35, maxrate=3710k
+[segment_7 1280x720] CRF=36, maxrate=8341k
+[segment_7 1920x1080] CRF=36, maxrate=18767k
+[segment_8 원본: 1280x720] CRF=36, maxrate=8273k
+[segment_8 640x360] CRF=35, maxrate=2068k
+[segment_8 854x480] CRF=35, maxrate=3680k
+[segment_8 1280x720] CRF=36, maxrate=8273k
+[segment_8 1920x1080] CRF=36, maxrate=18614k
+[segment_9 원본: 1280x720] CRF=36, maxrate=8279k
+[segment_9 640x360] CRF=35, maxrate=2070k
+[segment_9 854x480] CRF=35, maxrate=3682k
+[segment_9 1280x720] CRF=36, maxrate=8279k
+[segment_9 1920x1080] CRF=36, maxrate=18628k
+[segment_10 원본: 1280x720] CRF=36, maxrate=8324k
+[segment_10 640x360] CRF=35, maxrate=2081k
+[segment_10 854x480] CRF=35, maxrate=3702k
+[segment_10 1280x720] CRF=36, maxrate=8324k
+[segment_10 1920x1080] CRF=36, maxrate=18729k
+[segment_11 원본: 1280x720] CRF=35, maxrate=8174k
+[segment_11 640x360] CRF=34, maxrate=2044k
+[segment_11 854x480] CRF=34, maxrate=3636k
+[segment_11 1280x720] CRF=35, maxrate=8174k
+[segment_11 1920x1080] CRF=35, maxrate=18392k
+[segment_12 원본: 1280x720] CRF=35, maxrate=8224k
+[segment_12 640x360] CRF=34, maxrate=2056k
+[segment_12 854x480] CRF=34, maxrate=3658k
+[segment_12 1280x720] CRF=35, maxrate=8224k
+[segment_12 1920x1080] CRF=35, maxrate=18504k
+[segment_13 원본: 1280x720] CRF=35, maxrate=8206k
+[segment_13 640x360] CRF=34, maxrate=2052k
+[segment_13 854x480] CRF=34, maxrate=3650k
+[segment_13 1280x720] CRF=35, maxrate=8206k
+[segment_13 1920x1080] CRF=35, maxrate=18464k
+[segment_14 원본: 1280x720] CRF=35, maxrate=8272k
+[segment_14 640x360] CRF=34, maxrate=2068k
+[segment_14 854x480] CRF=34, maxrate=3679k
+[segment_14 1280x720] CRF=35, maxrate=8272k
+[segment_14 1920x1080] CRF=35, maxrate=18612k
+[segment_15 원본: 1280x720] CRF=35, maxrate=8271k
+[segment_15 640x360] CRF=34, maxrate=2068k
+[segment_15 854x480] CRF=34, maxrate=3679k
+[segment_15 1280x720] CRF=35, maxrate=8271k
+[segment_15 1920x1080] CRF=35, maxrate=18610k
+[segment_16 원본: 1280x720] CRF=35, maxrate=8214k
+[segment_16 640x360] CRF=34, maxrate=2054k
+[segment_16 854x480] CRF=34, maxrate=3654k
+[segment_16 1280x720] CRF=35, maxrate=8214k
+[segment_16 1920x1080] CRF=35, maxrate=18482k
+[segment_17 원본: 1280x720] CRF=36, maxrate=8280k
+[segment_17 640x360] CRF=35, maxrate=2070k
+[segment_17 854x480] CRF=35, maxrate=3683k
+[segment_17 1280x720] CRF=36, maxrate=8280k
+[segment_17 1920x1080] CRF=36, maxrate=18630k
+[segment_18 원본: 1280x720] CRF=36, maxrate=8380k
+[segment_18 640x360] CRF=35, maxrate=2095k
+[segment_18 854x480] CRF=35, maxrate=3727k
+[segment_18 1280x720] CRF=36, maxrate=8380k
+[segment_18 1920x1080] CRF=36, maxrate=18855k
+[segment_19 원본: 1280x720] CRF=36, maxrate=8313k
+[segment_19 640x360] CRF=35, maxrate=2078k
+[segment_19 854x480] CRF=35, maxrate=3698k
+[segment_19 1280x720] CRF=36, maxrate=8313k
+[segment_19 1920x1080] CRF=36, maxrate=18704k
+[segment_20 원본: 1280x720] CRF=35, maxrate=8240k
+[segment_20 640x360] CRF=34, maxrate=2060k
+[segment_20 854x480] CRF=34, maxrate=3665k
+[segment_20 1280x720] CRF=35, maxrate=8240k
+[segment_20 1920x1080] CRF=35, maxrate=18540k
+[segment_21 원본: 1280x720] CRF=36, maxrate=8188k
+[segment_21 640x360] CRF=35, maxrate=2047k
+[segment_21 854x480] CRF=35, maxrate=3642k
+[segment_21 1280x720] CRF=36, maxrate=8188k
+[segment_21 1920x1080] CRF=36, maxrate=18423k
+[segment_22 원본: 1280x720] CRF=36, maxrate=8235k
+[segment_22 640x360] CRF=35, maxrate=2059k
+[segment_22 854x480] CRF=35, maxrate=3663k
+[segment_22 1280x720] CRF=36, maxrate=8235k
+[segment_22 1920x1080] CRF=36, maxrate=18529k
+[segment_23 원본: 1280x720] CRF=36, maxrate=8406k
+[segment_23 640x360] CRF=35, maxrate=2102k
+[segment_23 854x480] CRF=35, maxrate=3739k
+[segment_23 1280x720] CRF=36, maxrate=8406k
+[segment_23 1920x1080] CRF=36, maxrate=18914k
+[segment_24 원본: 1280x720] CRF=35, maxrate=8338k
+[segment_24 640x360] CRF=34, maxrate=2084k
+[segment_24 854x480] CRF=34, maxrate=3709k
+[segment_24 1280x720] CRF=35, maxrate=8338k
+[segment_24 1920x1080] CRF=35, maxrate=18760k
+[segment_25 원본: 1280x720] CRF=35, maxrate=8287k
+[segment_25 640x360] CRF=34, maxrate=2072k
+[segment_25 854x480] CRF=34, maxrate=3686k
+[segment_25 1280x720] CRF=35, maxrate=8287k
+[segment_25 1920x1080] CRF=35, maxrate=18646k
+[segment_26 원본: 1280x720] CRF=36, maxrate=8318k
+[segment_26 640x360] CRF=35, maxrate=2080k
+[segment_26 854x480] CRF=35, maxrate=3700k
+[segment_26 1280x720] CRF=36, maxrate=8318k
+[segment_26 1920x1080] CRF=36, maxrate=18716k
+[segment_27 원본: 1280x720] CRF=35, maxrate=8251k
+[segment_27 640x360] CRF=34, maxrate=2063k
+[segment_27 854x480] CRF=34, maxrate=3670k
+[segment_27 1280x720] CRF=35, maxrate=8251k
+[segment_27 1920x1080] CRF=35, maxrate=18565k
+[segment_28 원본: 1280x720] CRF=36, maxrate=8269k
+[segment_28 640x360] CRF=35, maxrate=2067k
+[segment_28 854x480] CRF=35, maxrate=3678k
+[segment_28 1280x720] CRF=36, maxrate=8269k
+[segment_28 1920x1080] CRF=36, maxrate=18605k
+[segment_29 원본: 1280x720] CRF=35, maxrate=8238k
+[segment_29 640x360] CRF=34, maxrate=2060k
+[segment_29 854x480] CRF=34, maxrate=3664k
+[segment_29 1280x720] CRF=35, maxrate=8238k
+[segment_29 1920x1080] CRF=35, maxrate=18536k
+[segment_30 원본: 1280x720] CRF=35, maxrate=8218k
+[segment_30 640x360] CRF=34, maxrate=2054k
+[segment_30 854x480] CRF=34, maxrate=3655k
+[segment_30 1280x720] CRF=35, maxrate=8218k
+[segment_30 1920x1080] CRF=35, maxrate=18490k
+[segment_31 원본: 1280x720] CRF=36, maxrate=8282k
+[segment_31 640x360] CRF=35, maxrate=2070k
+[segment_31 854x480] CRF=35, maxrate=3684k
+[segment_31 1280x720] CRF=36, maxrate=8282k
+[segment_31 1920x1080] CRF=36, maxrate=18634k
+[segment_32 원본: 1280x720] CRF=37, maxrate=8614k
+[segment_32 640x360] CRF=36, maxrate=2154k
+[segment_32 854x480] CRF=36, maxrate=3831k
+[segment_32 1280x720] CRF=37, maxrate=8614k
+[segment_32 1920x1080] CRF=37, maxrate=19382k
+[segment_33 원본: 1280x720] CRF=36, maxrate=8374k
+[segment_33 640x360] CRF=35, maxrate=2094k
+[segment_33 854x480] CRF=35, maxrate=3725k
+[segment_33 1280x720] CRF=36, maxrate=8374k
+[segment_33 1920x1080] CRF=36, maxrate=18842k
+[segment_34 원본: 1280x720] CRF=35, maxrate=8164k
+[segment_34 640x360] CRF=34, maxrate=2041k
+[segment_34 854x480] CRF=34, maxrate=3631k
+[segment_34 1280x720] CRF=35, maxrate=8164k
+[segment_34 1920x1080] CRF=35, maxrate=18369k
+[segment_35 원본: 1280x720] CRF=35, maxrate=8277k
+[segment_35 640x360] CRF=34, maxrate=2069k
+[segment_35 854x480] CRF=34, maxrate=3682k
+[segment_35 1280x720] CRF=35, maxrate=8277k
+[segment_35 1920x1080] CRF=35, maxrate=18623k
+[segment_36 원본: 1280x720] CRF=36, maxrate=8430k
+[segment_36 640x360] CRF=35, maxrate=2108k
+[segment_36 854x480] CRF=35, maxrate=3750k
+[segment_36 1280x720] CRF=36, maxrate=8430k
+[segment_36 1920x1080] CRF=36, maxrate=18968k
+[segment_37 원본: 1280x720] CRF=36, maxrate=8364k
+[segment_37 640x360] CRF=35, maxrate=2091k
+[segment_37 854x480] CRF=35, maxrate=3720k
+[segment_37 1280x720] CRF=36, maxrate=8364k
+[segment_37 1920x1080] CRF=36, maxrate=18819k
+[segment_38 원본: 1280x720] CRF=35, maxrate=8282k
+[segment_38 640x360] CRF=34, maxrate=2070k
+[segment_38 854x480] CRF=34, maxrate=3684k
+[segment_38 1280x720] CRF=35, maxrate=8282k
+[segment_38 1920x1080] CRF=35, maxrate=18634k
+[segment_39 원본: 1280x720] CRF=35, maxrate=8264k
+[segment_39 640x360] CRF=34, maxrate=2066k
+[segment_39 854x480] CRF=34, maxrate=3676k
+[segment_39 1280x720] CRF=35, maxrate=8264k
+[segment_39 1920x1080] CRF=35, maxrate=18594k
+[segment_40 원본: 1280x720] CRF=36, maxrate=8348k
+[segment_40 640x360] CRF=35, maxrate=2087k
+[segment_40 854x480] CRF=35, maxrate=3713k
+[segment_40 1280x720] CRF=36, maxrate=8348k
+[segment_40 1920x1080] CRF=36, maxrate=18783k
+[segment_41 원본: 1280x720] CRF=36, maxrate=8342k
+[segment_41 640x360] CRF=35, maxrate=2086k
+[segment_41 854x480] CRF=35, maxrate=3710k
+[segment_41 1280x720] CRF=36, maxrate=8342k
+[segment_41 1920x1080] CRF=36, maxrate=18770k
+[segment_42 원본: 1280x720] CRF=36, maxrate=8285k
+[segment_42 640x360] CRF=35, maxrate=2071k
+[segment_42 854x480] CRF=35, maxrate=3685k
+[segment_42 1280x720] CRF=36, maxrate=8285k
+[segment_42 1920x1080] CRF=36, maxrate=18641k
+[segment_43 원본: 1280x720] CRF=35, maxrate=8300k
+[segment_43 640x360] CRF=34, maxrate=2075k
+[segment_43 854x480] CRF=34, maxrate=3692k
+[segment_43 1280x720] CRF=35, maxrate=8300k
+[segment_43 1920x1080] CRF=35, maxrate=18675k
+[segment_44 원본: 1280x720] CRF=36, maxrate=8323k
+[segment_44 640x360] CRF=35, maxrate=2081k
+[segment_44 854x480] CRF=35, maxrate=3702k
+[segment_44 1280x720] CRF=36, maxrate=8323k
+[segment_44 1920x1080] CRF=36, maxrate=18727k
+[segment_45 원본: 1280x720] CRF=36, maxrate=8382k
+[segment_45 640x360] CRF=35, maxrate=2096k
+[segment_45 854x480] CRF=35, maxrate=3728k
+[segment_45 1280x720] CRF=36, maxrate=8382k
+[segment_45 1920x1080] CRF=36, maxrate=18860k
+[segment_46 원본: 1280x720] CRF=36, maxrate=8288k
+[segment_46 640x360] CRF=35, maxrate=2072k
+[segment_46 854x480] CRF=35, maxrate=3686k
+[segment_46 1280x720] CRF=36, maxrate=8288k
+[segment_46 1920x1080] CRF=36, maxrate=18648k
+[segment_47 원본: 1280x720] CRF=36, maxrate=8254k
+[segment_47 640x360] CRF=35, maxrate=2064k
+[segment_47 854x480] CRF=35, maxrate=3671k
+[segment_47 1280x720] CRF=36, maxrate=8254k
+[segment_47 1920x1080] CRF=36, maxrate=18572k
+[segment_48 원본: 1280x720] CRF=35, maxrate=8243k
+[segment_48 640x360] CRF=34, maxrate=2061k
+[segment_48 854x480] CRF=34, maxrate=3666k
+[segment_48 1280x720] CRF=35, maxrate=8243k
+[segment_48 1920x1080] CRF=35, maxrate=18547k
+[segment_49 원본: 1280x720] CRF=35, maxrate=8191k
+[segment_49 640x360] CRF=34, maxrate=2048k
+[segment_49 854x480] CRF=34, maxrate=3643k
+[segment_49 1280x720] CRF=35, maxrate=8191k
+[segment_49 1920x1080] CRF=35, maxrate=18430k
+[segment_50 원본: 1280x720] CRF=36, maxrate=8466k
+[segment_50 640x360] CRF=35, maxrate=2116k
+[segment_50 854x480] CRF=35, maxrate=3766k
+[segment_50 1280x720] CRF=36, maxrate=8466k
+[segment_50 1920x1080] CRF=36, maxrate=19048k
+[segment_51 원본: 1280x720] CRF=36, maxrate=8445k
+[segment_51 640x360] CRF=35, maxrate=2111k
+[segment_51 854x480] CRF=35, maxrate=3756k
+[segment_51 1280x720] CRF=36, maxrate=8445k
+[segment_51 1920x1080] CRF=36, maxrate=19001k
+[segment_52 원본: 1280x720] CRF=36, maxrate=8374k
+[segment_52 640x360] CRF=35, maxrate=2094k
+[segment_52 854x480] CRF=35, maxrate=3725k
+[segment_52 1280x720] CRF=36, maxrate=8374k
+[segment_52 1920x1080] CRF=36, maxrate=18842k
+[segment_53 원본: 1280x720] CRF=35, maxrate=8308k
+[segment_53 640x360] CRF=34, maxrate=2077k
+[segment_53 854x480] CRF=34, maxrate=3695k
+[segment_53 1280x720] CRF=35, maxrate=8308k
+[segment_53 1920x1080] CRF=35, maxrate=18693k
+[segment_54 원본: 1280x720] CRF=35, maxrate=8237k
+[segment_54 640x360] CRF=34, maxrate=2059k
+[segment_54 854x480] CRF=34, maxrate=3664k
+[segment_54 1280x720] CRF=35, maxrate=8237k
+[segment_54 1920x1080] CRF=35, maxrate=18533k
+[segment_55 원본: 1280x720] CRF=36, maxrate=8276k
+[segment_55 640x360] CRF=35, maxrate=2069k
+[segment_55 854x480] CRF=35, maxrate=3681k
+[segment_55 1280x720] CRF=36, maxrate=8276k
+[segment_55 1920x1080] CRF=36, maxrate=18621k
+[segment_56 원본: 1280x720] CRF=36, maxrate=8288k
+[segment_56 640x360] CRF=35, maxrate=2072k
+[segment_56 854x480] CRF=35, maxrate=3686k
+[segment_56 1280x720] CRF=36, maxrate=8288k
+[segment_56 1920x1080] CRF=36, maxrate=18648k
+[segment_57 원본: 1280x720] CRF=35, maxrate=8290k
+[segment_57 640x360] CRF=34, maxrate=2072k
+[segment_57 854x480] CRF=34, maxrate=3687k
+[segment_57 1280x720] CRF=35, maxrate=8290k
+[segment_57 1920x1080] CRF=35, maxrate=18652k
+[segment_58 원본: 1280x720] CRF=35, maxrate=8257k
+[segment_58 640x360] CRF=34, maxrate=2064k
+[segment_58 854x480] CRF=34, maxrate=3673k
+[segment_58 1280x720] CRF=35, maxrate=8257k
+[segment_58 1920x1080] CRF=35, maxrate=18578k
+[segment_59 원본: 1280x720] CRF=35, maxrate=8241k
+[segment_59 640x360] CRF=34, maxrate=2060k
+[segment_59 854x480] CRF=34, maxrate=3666k
+[segment_59 1280x720] CRF=35, maxrate=8241k
+[segment_59 1920x1080] CRF=35, maxrate=18542k
+[segment_60 원본: 1280x720] CRF=35, maxrate=8176k
+[segment_60 640x360] CRF=34, maxrate=2044k
+[segment_60 854x480] CRF=34, maxrate=3637k
+[segment_60 1280x720] CRF=35, maxrate=8176k
+[segment_60 1920x1080] CRF=35, maxrate=18396k
+[segment_61 원본: 1280x720] CRF=35, maxrate=8246k
+[segment_61 640x360] CRF=34, maxrate=2062k
+[segment_61 854x480] CRF=34, maxrate=3668k
+[segment_61 1280x720] CRF=35, maxrate=8246k
+[segment_61 1920x1080] CRF=35, maxrate=18554k
+[segment_62 원본: 1280x720] CRF=35, maxrate=8219k
+[segment_62 640x360] CRF=34, maxrate=2055k
+[segment_62 854x480] CRF=34, maxrate=3656k
+[segment_62 1280x720] CRF=35, maxrate=8219k
+[segment_62 1920x1080] CRF=35, maxrate=18493k
+[segment_63 원본: 1280x720] CRF=35, maxrate=8288k
+[segment_63 640x360] CRF=34, maxrate=2072k
+[segment_63 854x480] CRF=34, maxrate=3686k
+[segment_63 1280x720] CRF=35, maxrate=8288k
+[segment_63 1920x1080] CRF=35, maxrate=18648k
+[segment_64 원본: 1280x720] CRF=35, maxrate=8210k
+[segment_64 640x360] CRF=34, maxrate=2052k
+[segment_64 854x480] CRF=34, maxrate=3652k
+[segment_64 1280x720] CRF=35, maxrate=8210k
+[segment_64 1920x1080] CRF=35, maxrate=18472k
+[segment_65] (last, reuse prev): CRF=35, maxrate=8210k
+[segment_65 640x360] CRF=34, maxrate=2052k
+[segment_65 854x480] CRF=34, maxrate=3652k
+[segment_65 1280x720] CRF=35, maxrate=8210k
+[segment_65 1920x1080] CRF=35, maxrate=18472k
+[husky_encode13] === AI 인코딩 완료 ===
+
+[husky_encode13] === 해상도별 concat.txt 생성 === 
+[360p] concat.txt: ./static/husky_encode13/concat_dir/concat_360p.txt
+[480p] concat.txt: ./static/husky_encode13/concat_dir/concat_480p.txt
+[720p] concat.txt: ./static/husky_encode13/concat_dir/concat_720p.txt
+[1080p] concat.txt: ./static/husky_encode13/concat_dir/concat_1080p.txt
+[husky_encode13] === 해상도별 concat.txt 생성 완료 === 
+
+[husky_encode13] === 해상도별 세그먼트 병합 === 
+[360p] mp4 병합: ./static/husky_encode13/merged/merged_ai_360p.mp4
+[480p] mp4 병합: ./static/husky_encode13/merged/merged_ai_480p.mp4
+[720p] mp4 병합: ./static/husky_encode13/merged/merged_ai_720p.mp4
+[1080p] mp4 병합: ./static/husky_encode13/merged/merged_ai_1080p.mp4
+[husky_encode13] === 해상도별 세그먼트 병합 mp4 생성 완료 === 
+
+[husky_encode13] === 해상도별 mp4 재인코딩 === 
+[360p] mp4 재인코딩: ./static/husky_encode13/fixed/merged_ai_fixed_360p.mp4
+[480p] mp4 재인코딩: ./static/husky_encode13/fixed/merged_ai_fixed_480p.mp4
+[720p] mp4 재인코딩: ./static/husky_encode13/fixed/merged_ai_fixed_720p.mp4
+[1080p] mp4 재인코딩: ./static/husky_encode13/fixed/merged_ai_fixed_1080p.mp4
+[husky_encode13] === 해상도별 MP4 재인코딩 완료 === 
+
+[husky_encode13] === DASH MPD/m4s 생성 시작=== 
+[1080p] MP4Box 실행: ['MP4Box', '-dash', '2000', '-frag', '2000', '-rap', '-profile', 'dashavc264:live', '-out', './static/husky_encode13/mp4box/manifest.mpd', './static/husky_encode13/fixed/merged_ai_fixed_360p.mp4#video:name=360p', './static/husky_encode13/fixed/merged_ai_fixed_480p.mp4#video:name=480p', './static/husky_encode13/fixed/merged_ai_fixed_720p.mp4#video:name=720p', './static/husky_encode13/fixed/merged_ai_fixed_1080p.mp4#video:name=1080p']
+[husky_encode13] === DASH MPD/m4s 생성 완료 === 
+
