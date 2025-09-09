@@ -165,12 +165,13 @@ function Navbar(props) {
                         src={
                           profilePic
                             ? `${User.photoURL}`
-                            : `https://www.citypng.com/public/uploads/preview/profile-user-round-blue-icon-symbol-download-png-11639594337tco5j3n0ix.png`
+                            : "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
+                            //`https://www.citypng.com/public/uploads/preview/profile-user-round-blue-icon-symbol-download-png-11639594337tco5j3n0ix.png`
                         }
                         alt="NETFLIX"
                       />
                     </Link>
-                    <ul class="absolute hidden text-white pt-1 -ml-32 group-hover:block transition ease-in-out delay-150">
+                    <ul className="absolute hidden text-white pt-1 -ml-32 group-hover:block transition ease-in-out delay-150">
                       <li>
                         <Link
                           to={"/profile"}
@@ -261,40 +262,28 @@ function Navbar(props) {
             {(ref) => (
               <div className="md:hidden" id="mobile-menu">
                 <div ref={ref} className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                  <Link to={"/"}>
-                    <a className="block px-3 py-2 text-base font-medium text-white rounded-md hover:bg-blue-800">
-                      Home
-                    </a>
+                  <Link to="/" className="block px-3 py-2 text-base font-medium text-white rounded-md hover:bg-blue-800">
+                    Home
                   </Link>
 
-                  <Link to={"/series"}>
-                    <a className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
-                      TV-Series
-                    </a>
+                  <Link to={"/series"} className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
+                    TV-Series
                   </Link>
 
-                  <Link to={"/history"}>
-                    <a className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
+                  <Link to={"/history"} className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
                       History
-                    </a>
                   </Link>
 
-                  <Link to={"/liked"}>
-                    <a className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
-                      Liked
-                    </a>
+                  <Link to={"/liked"} className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
+                    Liked
                   </Link>
 
-                  <Link to={"/mylist"}>
-                    <a className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
-                      My-List
-                    </a>
+                  <Link to={"/mylist"} className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
+                    My-List
                   </Link>
 
-                  <Link to={"/signin"}>
-                    <a className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
+                  <Link to={"/signin"} className="block px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-blue-800 hover:text-white">
                       Add another user
-                    </a>
                   </Link>
 
                   <a
