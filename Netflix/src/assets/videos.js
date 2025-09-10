@@ -12,13 +12,13 @@ export default [
   {
     id: 2,
     title: '영상 2',
-    manifest: 'http://localhost:8000/stream/Sports/mp4box/manifest.mpd',
+    manifest: 'http://localhost:8000/stream/lol_encode13/mp4box/manifest.mpd',
     thumb: '/assets/thumbs/video2.png',
   },
   {
     id: 3,
     title: '영상 3',
-    manifest: 'http://localhost:8000/stream/news_v2/mp4box/manifest.mpd',
+    manifest: 'http://localhost:8000/stream/news_encode13/mp4box/manifest.mpd',
     thumb: '/assets/thumbs/video3.png',
   }
 ]

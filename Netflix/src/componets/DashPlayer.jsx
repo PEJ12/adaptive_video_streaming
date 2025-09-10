@@ -1,48 +1,107 @@
-// DashPlayer.jsx
-
+// DashPlayer.jsx — 전체 교체본 (CSV 로딩 + 비트레이트 차트 + 네트워크 스로틀 버튼 + SW 연동 + 'slow' 강제 저화질)
+// =============================================================================
 import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 import Papa from 'papaparse';
 import './DashPlayer.css';
 
+// ========================[ 상수 ]==============================================
+// encode.py 의 SEG_LEN 과 반드시 일치해야 전역 시간축이 맞음
+const SEG_LEN = 2; // [KEEP]
+
+// [ADD] UI에서 선택한 네트워크 프로파일 → dash.js 강제 품질 제한에 매핑
+//   - 'slow'일 때 대략 1.5Mbps 이하만 허용되도록 제한(없으면 가능한 최저 품질로 강제)
+//   - 'fast' / 'off' 는 자동 ABR 재개
+const PROFILE_CAP_KBPS = {
+  slow: 1500,  // 느림 모드 상한 (kbps)
+  fast: Infinity,
+  off:  Infinity,
+};
+
+// ==================[ 유틸: 비디오 이름/세그먼트 파싱 ]===========================
+// /stream/{video}/manifest.mpd 형태에서 video_name 추출
+function extractVideoName(manifestUrl) {
+  try {
+    const u = new URL(manifestUrl, window.location.href);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const idx = parts.indexOf('stream');
+    if (idx !== -1 && parts[idx + 1]) return parts[idx + 1];
+    if (parts.length >= 2) return parts[parts.length - 2];
+  } catch (e) {
+    console.warn('[extractVideoName] failed:', e);
+  }
+  return '';
+}
+
+// MP4Box가 만든 m4s 파일명에서 해상도/세그먼트 인덱스 추출
+// 예: merged_ai_720p_dash12.m4s, 720p_dash12.m4s, anything_720p_dash12.m4s 지원
+function parseMp4boxM4s(url) {
+  const name = url.split('?')[0].split('/').pop();
+  let m = name.match(/merged_ai_(\d+p)_dash(\d+)\.m4s$/);
+  if (m) return { resolution: m[1], segIdx: parseInt(m[2], 10) };
+  m = name.match(/(\d+p)_dash(\d+)\.m4s$/);
+  if (m) return { resolution: m[1], segIdx: parseInt(m[2], 10) };
+  m = name.match(/_(\d+p)_dash(\d+)\.m4s$/);
+  if (m) return { resolution: m[1], segIdx: parseInt(m[2], 10) };
+  console.warn('[parseMp4boxM4s] Unmatched m4s name:', name);
+  return null;
+}
+
+// =========================[ 컴포넌트 ]=========================================
 export default function DashPlayer({ manifestUrl }) {
+  // ---------- refs ----------
   const videoRef = useRef(null);
   const chartRef = useRef(null);
   const playerRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
+  // ---------- state ----------
   const [bitrateLog, setBitrateLog] = useState([]);
   const [currentSegment, setCurrentSegment] = useState(null);
-  const [segmentStartTime, setSegmentStartTime] = useState(Date.now());
-  const [uiProfile, setUiProfile] = useState('off');
-  const currentProfileRef = useRef('off');
 
+  const [uiProfile, setUiProfile] = useState('off');     // [ADD] 네트워크 버튼 active 표시
+  const currentProfileRef = useRef('off');               // [ADD] SW로 보낼 현재 프로파일 저장
 
+  // ==================[ CSV 로딩: manifest 오리진 기준 ]=========================
   useEffect(() => {
-  if (!bitrateLog.length) return;
-  const seg1080 = bitrateLog.filter(row => row.segment_name === 'ai_seg_1_1080p.mp4');
-  console.log("[🔍 ai_seg_1_1080p.mp4 비트레이트]", seg1080);
-}, [bitrateLog]);
+    if (!manifestUrl) return;
+    const videoName = extractVideoName(manifestUrl);
+    if (!videoName) {
+      console.warn('⚠️ video_name 추출 실패 – CSV 로딩 중단');
+      return;
+    }
 
-  // 📦 CSV 불러오기
-  useEffect(() => {
-    fetch('/husky/bitrate_logs/husky_bitrate_per_second.csv')
-      .then((res) => res.text())
+    // [FIX] manifestUrl의 origin(예: http://localhost:8000) 기준으로 CSV 요청
+    const base = new URL(manifestUrl, window.location.href);
+    const csvUrl = new URL(
+      `/stream/${videoName}/bitrate/${videoName}_bitrate_per_second.csv`,
+      base.origin
+    ).toString();
+
+    console.log('[CSV fetch] url:', csvUrl);
+
+    fetch(csvUrl, { mode: 'cors' })
+      .then((res) => {
+        console.log('[CSV fetch] status:', res.status);
+        if (!res.ok) throw new Error(`CSV 요청 실패: ${res.status}`);
+        return res.text();
+      })
       .then((csvText) => {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
           dynamicTyping: true,
-          transformHeader: (header) => header.trim(),
+          transformHeader: (h) => h.trim(),
           complete: (result) => {
-            console.log('✅ CSV 샘플 확인:', result.data.slice(0, 3));
+            console.log('✅ CSV 샘플:', result.data.slice(0, 3));
             setBitrateLog(result.data);
           },
         });
-      });
-  }, []);
+      })
+      .catch((e) => console.error('❌ CSV 로딩 오류:', e.message));
+  }, [manifestUrl]);
 
-  // 📺 dash.js 초기화 및 차트 생성
+  // =====================[ dash.js 초기화 + 차트 생성 ]==========================
   useEffect(() => {
     const dashjs = window.dashjs;
     if (!dashjs || typeof dashjs.MediaPlayer !== 'function') {
@@ -53,186 +112,130 @@ export default function DashPlayer({ manifestUrl }) {
     const player = dashjs.MediaPlayer().create();
     playerRef.current = player;
 
+    // [CHANGED] 초기 ABR 설정을 좀 더 보수적으로 → 빠른 업스위치 방지
     player.updateSettings({
-        streaming: {
-          abr: {
-            autoSwitchBitrate: {
-              video: true,
-              //audio: true
-            }
-          }
-        }
+      streaming: {
+        fastSwitchEnabled: false,
+        stableBufferTime: 8, // 초
+        buffer: {
+          bufferTimeAtTopQuality: 8,
+          bufferToKeep: 20,
+        },
+        abr: {
+          autoSwitchBitrate: { video: true },
+          // [ADD] 초반에 너무 높은 비트레이트로 가지 않도록 초기값 낮춤
+          initialBitrate: { video: 800 }, // kbps
+          // [ADD] (dash.js v4+) 제한 필드: 나중에 profile에 따라 업데이트
+          maxBitrate: { video: Infinity },
+        },
+      },
     });
 
     player.initialize(videoRef.current, manifestUrl, true);
 
+    // 차트 생성(심플)
     chartInstanceRef.current = new Chart(chartRef.current, {
       type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Bitrate (kbps)',
-            data: [],
-            borderColor: '#ffb74d',             // 더 밝은 오렌지
-            backgroundColor: 'rgba(255,183,77,0.4)', // 약간 투명한 배경
-            fill: true,                         // 아래 면 채우기
-            tension: 0.3,                       // 더 부드러운 곡선
-            borderWidth: 2,
-            pointRadius: 1.5,                   // 작고 깔끔한 점
-            pointHoverRadius: 4,
-            pointBackgroundColor: '#fff',
-          },
-        ],
-      },
+      data: { labels: [], datasets: [{ label: 'Bitrate (kbps)', data: [] }] },
       options: {
         responsive: true,
         animation: false,
-        devicePixelRatio: 2,
-        plugins: {
-          legend: {
-            labels: {
-              color: '#eee',
-              font: { weight: 'bold' }
-            }
-          },
-          tooltip: {
-            backgroundColor: '#222',
-            titleColor: '#ffb74d',
-            bodyColor: '#fff'
-          }
-        },
         scales: {
-          x: {
-            title: { display: true, text: 'Time (s)', color: '#ccc' },
-            ticks: { color: '#aaa' },
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            beginAtZero: true,
-            min: 0,
-          },
-          y: {
-            title: { display: true, text: 'Bitrate (kbps)', color: '#ccc' },
-            ticks: { color: '#aaa' },
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            beginAtZero: false,
-          },
+          x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true, min: 0 },
+          y: { title: { display: true, text: 'Bitrate (kbps)' } },
         },
       },
     });
 
-
     return () => {
-      player.reset();
+      try { player.reset(); } catch {}
       chartInstanceRef.current?.destroy();
     };
   }, [manifestUrl]);
 
-  // 📊 bitrateLog가 준비된 후 이벤트 핸들러 등록
+  // ============[ 세그먼트 로딩 완료 이벤트에서 차트/로그 갱신 ]===============
   useEffect(() => {
     if (!bitrateLog.length || !playerRef.current) return;
-
     const player = playerRef.current;
 
     const handleFragment = (e) => {
-      const url = e.request?.url;
-      const video = e.request?.mediaType === 'video';
-      if (!url || !video) return;
+      const url = e?.request?.url;
+      const isVideo = e?.request?.mediaType === 'video';
+      if (!url || !isVideo) return;
 
-      const match = url.match(/merged_ai_fixed_(\d+p)_dash(\d+)\.m4s/);
-      if (!match) return;
+      const parsed = parseMp4boxM4s(url);
+      if (!parsed) return;
 
-      const resolution = match[1];
-      const segIdx = parseInt(match[2], 10);
-      const segmentName = `ai_seg_${segIdx}_${resolution}.mp4`;
-
+      const { resolution, segIdx } = parsed; // segIdx = 1,2,3...
+      const segmentName = `ai_seg_${segIdx}_${resolution}.mp4`; // CSV의 segment_name 규칙과 일치
       setCurrentSegment(segmentName);
-      setSegmentStartTime(Date.now());
 
-      console.log("🔍 현재 세그먼트 이름:", segmentName);
-      console.log("📄 bitrateLog 샘플:", bitrateLog.slice(0, 3));
-
-      const matched = bitrateLog.filter(
-        (row) => row.segment_name?.trim() === segmentName
-      );
-
-      if (matched.length === 0) {
-        console.warn(`[📉] ${segmentName} 에 대한 비트레이트 없음`);
+      const rows = bitrateLog.filter(r => String(r.segment_name).trim() === segmentName);
+      if (!rows.length) {
+        console.warn(`[CSV 미존재] ${segmentName}`);
         return;
       }
 
       const chart = chartInstanceRef.current;
 
-      matched.forEach((row) => {
-     
-      for (let localSec = 0; localSec < 10; localSec++) {
-        const row = matched.find(r => parseInt(r.time_second) === localSec);
-        const globalSec = (segIdx - 1) * 10 + localSec;
-        const globalSecStr = globalSec.toString();
+      // [KEEP] SEG_LEN(=2초) 기준으로 전역 시간축 채우기
+      for (let localSec = 0; localSec < SEG_LEN; localSec++) {
+        const row = rows.find(r => parseInt(r.time_second) === localSec);
+        const globalSec = (segIdx - 1) * SEG_LEN + localSec;
+        const globalSecStr = String(globalSec);
 
-        const chart = chartInstanceRef.current;
+        if (!row || isNaN(parseFloat(row.bitrate_kbps))) continue;
 
-        if (row && !isNaN(parseFloat(row.bitrate_kbps))) {
-          const bitrate = parseFloat(row.bitrate_kbps);
-          const idx = chart.data.labels.indexOf(globalSecStr);
+        const bitrate = parseFloat(row.bitrate_kbps);
+        const idx = chart.data.labels.indexOf(globalSecStr);
 
-          if (idx !== -1) {
-            chart.data.datasets[0].data[idx] = bitrate;
-          } else {
-            chart.data.labels.push(globalSecStr);
-            chart.data.datasets[0].data.push(bitrate);
-          }
-        } else {
-          // 데이터 없을 경우도 0 혹은 null로 채울 수 있음 (옵션)
-          console.warn(`❗️[비어있음] ${segmentName} ${localSec}s`);
+        if (idx !== -1) chart.data.datasets[0].data[idx] = bitrate;
+        else {
+          chart.data.labels.push(globalSecStr);
+          chart.data.datasets[0].data.push(bitrate);
         }
       }
 
-
-
-      });
       chart.update();
+      console.log(`🔍 세그먼트: ${segmentName} (SEG_LEN=${SEG_LEN}s)`);
     };
 
     player.on(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
-
     return () => {
       player.off(window.dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, handleFragment);
     };
   }, [bitrateLog]);
 
-  // 🔁 1초마다 현재 세그먼트 비트레이트 출력
-// (1) useRef를 상단에 선언 (함수 컴포넌트 최상단에 위치해야 함)
+  // =====================[ 1초 주기 콘솔 로그 (중복 방지) ]======================
   const printedRef = useRef(new Set());
+  useEffect(() => { printedRef.current = new Set(); }, [currentSegment]);
 
   useEffect(() => {
     if (!currentSegment || bitrateLog.length === 0) return;
-
-    const interval = setInterval(() => {
-      const matched = bitrateLog.filter(
-        (r) => r.segment_name?.trim() === currentSegment
-      );
-
-      for (let sec = 0; sec < 10; sec++) {
+    const rows = bitrateLog.filter(r => String(r.segment_name).trim() === currentSegment);
+    const timer = setInterval(() => {
+      for (let sec = 0; sec < SEG_LEN; sec++) {
         const key = `${currentSegment}-${sec}`;
         if (printedRef.current.has(key)) continue;
-
-        const row = matched.find((r) => parseInt(r.time_second) === sec);
+        const row = rows.find(r => parseInt(r.time_second) === sec);
         if (row) {
           console.log(`📦 [${currentSegment}] ${sec}s → ${row.bitrate_kbps} kbps`);
           printedRef.current.add(key);
         }
       }
     }, 1000);
+    return () => clearInterval(timer);
+  }, [currentSegment, bitrateLog]);
 
-    return () => clearInterval(interval);
-  }, [currentSegment, bitrateLog]); // ✅ segmentStartTime 제거!
-
-
-
-
-  // ✅ SW 등록 + 프로파일 전송
+  // ===================[ SW 등록 + 초기 프로파일 전송 ]=========================
   useEffect(() => {
     const onMsg = (e) => {
+      // [ADD] 프로파일 변경 시 dash.js 품질 제한/해제
+      if (e.data?.type === 'PROFILE_CHANGED') {
+        const p = e.data.profile;
+        console.log('[SW] PROFILE_CHANGED →', p);
+        applyProfileToDash(p); // [ADD] 아래 함수
+      }
       if (e.data?.type === 'LOG') console.log(e.data.msg);
     };
     navigator.serviceWorker?.addEventListener('message', onMsg);
@@ -240,15 +243,16 @@ export default function DashPlayer({ manifestUrl }) {
     (async () => {
       if ('serviceWorker' in navigator) {
         try {
-          const reg = await navigator.serviceWorker.register('/throttle-sw.js', { scope: '/' });
+          // [ADD] 네트워크 스로틀 Service Worker 등록
+          await navigator.serviceWorker.register('/throttle-sw.js', { scope: '/' });
           await navigator.serviceWorker.ready;
 
           if (!navigator.serviceWorker.controller) {
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              sendProfile(currentProfileRef.current);
+              sendProfile(currentProfileRef.current); // 컨트롤러 생기면 현재 프로파일 재전송
             });
           } else {
-            sendProfile('off');
+            sendProfile('off'); // 초기값 전송
           }
         } catch (err) {
           console.warn('SW 등록 실패:', err);
@@ -259,7 +263,8 @@ export default function DashPlayer({ manifestUrl }) {
     return () => navigator.serviceWorker?.removeEventListener('message', onMsg);
   }, []);
 
-  const sendProfile = (p) => {
+  // ===================[ 네트워크 프로파일 전송 함수 ]===========================
+  function sendProfile(p) {
     currentProfileRef.current = p;
     setUiProfile(p);
 
@@ -269,22 +274,106 @@ export default function DashPlayer({ manifestUrl }) {
         profile: p,
       });
       console.log(`[UI] Network profile → ${p}`);
+      applyProfileToDash(p); // [ADD] 즉시 dash에도 반영 (SW 응답 기다리지 않음)
     } else {
       console.warn('[SW] 아직 제어권 없음');
     }
-  };
+  }
 
+  // [ADD] 프로파일을 dash.js 에 강제로 반영 (느림이면 낮은 품질 고정, 그 외 자동 복귀)
+  function applyProfileToDash(profile) {
+    const player = playerRef.current;
+    if (!player) return;
+
+    const cap = PROFILE_CAP_KBPS[profile] ?? Infinity;
+
+    try {
+      // dash.js v4: restrictions 를 업데이트 (있으면)
+      const settings = player.getSettings?.() || {};
+      const next = {
+        ...settings,
+        streaming: {
+          ...(settings.streaming || {}),
+          abr: {
+            ...((settings.streaming && settings.streaming.abr) || {}),
+              maxBitrate: { video: isFinite(cap) ? cap : Infinity },
+          },
+        },
+      };
+      player.updateSettings?.(next);
+    } catch {}
+
+    // [CHANGED] 확실한 하향을 위해 'slow'에서는 자동 ABR을 잠시 꺼서
+    //            cap 이하 중 가장 가까운 낮은 품질 index로 강제 고정
+    if (profile === 'slow') {
+      try {
+        let repList = null;
+        if (typeof player.getBitrateListFor === 'function') {
+          // v4 스타일: 숫자 배열(단위는 구현마다 kbps/bps일 수 있음)
+          const arr = player.getBitrateListFor('video');       // [CHANGED]
+          if (Array.isArray(arr)) {
+            repList = arr.map((v, i) => {
+              const kbps = v > 100000 ? Math.round(v / 1000) : Math.round(v); // bps→kbps 추정
+              return { kbps, q: i };
+            });
+          }
+        } else if (typeof player.getBitrateInfoListFor === 'function') {
+          // 구버전 스타일: 객체 배열
+          const arr = player.getBitrateInfoListFor('video');   // [FALLBACK]
+          if (Array.isArray(arr)) {
+            repList = arr.map(x => ({ kbps: Math.round(x.bitrate / 1000), q: x.qualityIndex }));
+          }
+        }
+
+if (repList && repList.length) {
+  const eligible = repList.filter(x => x.kbps <= cap).sort((a, b) => b.kbps - a.kbps);
+  const targetQ = (eligible[0]?.q ?? repList[repList.length - 1].q);
+  player.setAutoSwitchQualityFor('video', false);       // [KEEP]
+  player.setQualityFor('video', targetQ, true);         // [KEEP]
+  console.log(`[ABR] force qualityIndex=${targetQ} (cap=${cap}kbps)`); // [LOG]
+} else {
+  console.warn('[ABR] bitrate list unavailable');
+}
+      } catch (e) {
+        console.warn('[ABR] force quality failed:', e);
+      }
+    } else {
+      // fast/off: 자동 ABR 재개
+      try {
+        player.setAutoSwitchQualityFor('video', true);
+        console.log('[ABR] autoSwitch 재개');
+      } catch {}
+    }
+  }
+
+  // =============================[ UI ]=========================================
   return (
     <div className="dash-container">
       <div className="dash-video-wrapper">
         <video ref={videoRef} className="dash-video" controls />
       </div>
 
+      {/* 네트워크 전환 버튼 (Fast/Slow/Off) */}
       <div className="throttle-controls">
         <span className="throttle-label">Network:</span>
-        <button className={`throttle-btn ${uiProfile === 'fast' ? 'active' : ''}`} onClick={() => sendProfile('fast')}>Fast</button>
-        <button className={`throttle-btn ${uiProfile === 'slow' ? 'active' : ''}`} onClick={() => sendProfile('slow')}>Slow</button>
-        <button className={`throttle-btn ${uiProfile === 'off' ? 'active' : ''}`} onClick={() => sendProfile('off')}>Off</button>
+        <button
+          className={`throttle-btn ${uiProfile === 'fast' ? 'active' : ''}`}
+          onClick={() => sendProfile('fast')}
+        >
+          Fast
+        </button>
+        <button
+          className={`throttle-btn ${uiProfile === 'slow' ? 'active' : ''}`}
+          onClick={() => sendProfile('slow')}
+        >
+          Slow
+        </button>
+        <button
+          className={`throttle-btn ${uiProfile === 'off' ? 'active' : ''}`}
+          onClick={() => sendProfile('off')}
+        >
+          Off
+        </button>
       </div>
 
       <div className="dash-chart">
@@ -293,3 +382,4 @@ export default function DashPlayer({ manifestUrl }) {
     </div>
   );
 }
+// =============================================================================

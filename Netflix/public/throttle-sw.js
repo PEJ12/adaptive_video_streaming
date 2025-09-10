@@ -3,7 +3,7 @@
 // 프로필 정의
 const PROFILES = {
   off:  { bps: Infinity, latency: 0 },           // 제한 없음
-  slow: { bps: 2_500_000, latency: 120 },        // 2.5Mbps, 120ms RTT
+  slow: { bps: 700_000, latency: 120 },        // 700kbps, 120ms RTT
   fast: { bps: 10_000_000, latency: 40 },        // 10Mbps, 40ms
 };
 

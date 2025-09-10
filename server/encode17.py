@@ -37,7 +37,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 INPUT_VIDEOS = [
-    ("husky_encode13", "../input/husky.mp4")
+    ("lol_encode13", "../input/lol.mp4"),
+    ("husky_encode13", "../input/husky.mp4"),
+    ("news_encode13", "../input/news.mp4")
 ]
 
 CRF_MODEL_PATH = "./model/v10_crf_model.pkl"
@@ -109,7 +111,8 @@ def split_video(input_path, segment_dir, segment_length=2, drop_short=False, log
             "-preset", "ultrafast", # 품질 손실 최소화를 위해 빠른 프리셋 사용
             "-crf", "18", # 시각적으로 거의 무손실에 가까운 CRF 값
             #세그먼트 컷팅을 안정적으로 하기 위한 임시 재인코딩(첫 프레임 I-프레임 강제)
-            #최종적으로 플레이어가 보게 될 스트림은 그다음 단계 encode_segments()에서 다시 인코딩된 결과라서, 여기서 예측된 값이 최종 품질/비트레이트를 결정
+            #최종적으로 플레이어가 보게 될 스트림은 그다음 단계 encode_segments()에서 다시 인코딩된 결과라서,
+            #거기서 예측된 값이 최종 품질/비트레이트를 결정
             "-force_key_frames", "expr:eq(n,0)", # 각 세그먼트의 첫 프레임을 I-프레임으로 강제
             out
         ]
@@ -235,8 +238,8 @@ def analyze_video(video_path, sample_rate):
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = cap.get(cv2.CAP_PROP_FPS)
-        original_size = get_file_size(input_path)/1024
-        
+        original_size = get_file_size(video_path)/1024
+
         processed_frames = 0
         edge_density = []
         pixel_entropy = []
@@ -718,42 +721,6 @@ def concat_segments_multi_res(concat_txts, out_dir):
     f.close()
     return merged_mp4s
 
-# (6) 해상도별 병합 mp4 재인코딩
-def reencode_mp4_multi_res(merged_mp4s, out_dir):
-    """
-    각 해상도별로 병합된 mp4를 다시 인코딩하는 과정
-    병합된 mp4 파일을 재인코딩+스트리밍 최적화하여 플레이어 호환성을 높임
-    
-    Parameters:
-    - merged_mp4s: {해상도:병합된 mp4 경로} 딕셔너리
-    - out_dir: './static/{video}/fixed' 폴더 경로
-    
-    Returns:
-    - fixed_mp4s: {해상도: 재인코딩 영상 경로} 딕셔너리
-    """
-    
-    fixed_mp4s = {}
-    
-    f = open(LOG_FILE, "a", encoding="utf-8")
-    f.write(f"[{video_name}] === 해상도별 mp4 재인코딩 === \n")
-    
-    for tag, merged_mp4 in merged_mp4s.items():
-        fixed_mp4 = os.path.join(out_dir, f"merged_ai_fixed_{tag}.mp4")
-        cmd = [
-            "ffmpeg", "-y", "-i", merged_mp4,
-            "-c:v", "copy",
-            "-force_key_frames", f"expr:gte(t,n_forced*{SEG_LEN})",  # 2초마다 강제 I-frame
-            "-movflags", "+faststart",
-            fixed_mp4
-        ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        fixed_mp4s[tag] = fixed_mp4
-        f.write(f"[{tag}] mp4 재인코딩: {fixed_mp4}\n")
-        
-    f.write(f"[{video_name}] === 해상도별 MP4 재인코딩 완료 === \n\n")    
-    f.close()
-    
-    return fixed_mp4s
 
 # (7) **MP4Box로 여러 해상도 mp4를 한 번에 dash 분할 (한 개의 mpd 생성)** - 수정 (fixed_mp4s → merged_mp4s)
 def mp4box_dash_multi_res(merged_mp4s, out_dir, segment_ms=2000):
@@ -790,6 +757,153 @@ def mp4box_dash_multi_res(merged_mp4s, out_dir, segment_ms=2000):
     
     f.write(f"[{video_name}] === DASH MPD/m4s 생성 완료 === \n\n")    
     f.close()
+
+
+
+
+
+# 여기서 부터는 초단위 비트레이트 추출 및 CSV 저장하는 함수
+# [CHANGED] 세그먼트 파일명 정규식: ai_seg_{idx}_{res}.(ts|mp4)
+# [ADD] 세그먼트 파일명 정규식: ai_seg_{idx}_{res}.(ts|mp4)
+_SEG_RE = re.compile(r"^ai_seg_(\d+)_([A-Za-z0-9]+)\.(ts|mp4)$")
+
+
+def _normalize_seg_name(filename: str) -> tuple[int, str, str]:
+    name = os.path.basename(filename)
+    m = _SEG_RE.match(name)
+    if m:
+        return int(m.group(1)), m.group(2), m.group(3)
+    fixed = name.replace(" ", "_")
+    m2 = _SEG_RE.match(fixed)
+    if m2:
+        return int(m2.group(1)), m2.group(2), m2.group(3)
+    raise ValueError(f"Unrecognized segment file name: {name}")
+
+def _probe_kbps_per_second(media_path: str) -> dict[int, float]:
+    """
+    ffprobe로 패킷 단위 size를 읽어 1초 버킷 합산 (세그먼트 첫 타임스탬프를 0으로 정규화)
+    return: {sec(int: 0..SEG_LEN-1), kbps(float)}
+    """
+    # [CHANGED] -show_packets 추가, dts_time도 함께 요청
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-select_streams", "v:0",
+        "-show_packets",                                     # [CHANGED]
+        "-show_entries", "packet=pts_time,dts_time,size",    # [CHANGED]
+        "-of", "csv=p=0",
+        media_path
+    ]
+    r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    kbps_per_sec: dict[int, float] = {}
+    first_ts = None
+
+    for line in r.stdout.strip().splitlines():
+        # 기대 포맷: pts_time,dts_time,size
+        parts = line.strip().split(",")
+        if len(parts) < 3:
+            continue
+
+        pts_str, dts_str, size_str = parts[0], parts[1], parts[2]
+
+        # [CHANGED] pts_time이 N/A이면 dts_time으로 대체
+        ts_str = pts_str if pts_str and pts_str != "N/A" else dts_str
+        if not ts_str or ts_str == "N/A":
+            continue
+
+        try:
+            ts = float(ts_str)
+            size_bytes = int(size_str)
+        except Exception:
+            continue
+
+        if first_ts is None:
+            first_ts = ts
+
+        # 세그먼트 기준 0초부터 정규화
+        rel = ts - first_ts
+        # 간헐적 음수/NaN 방지
+        if not (rel == rel):  # NaN 체크
+            continue
+        if rel < 0:
+            rel = 0.0
+
+        sec = int(floor(rel))  # 0,1,...
+        if sec >= SEG_LEN:
+            sec = SEG_LEN - 1  # [KEEP] 2초 세그먼트면 0/1로 캡
+
+        kbps_per_sec.setdefault(sec, 0.0)
+        kbps_per_sec[sec] += (size_bytes * 8) / 1000.0  # bytes→kbps 누적
+
+    # [ADD] 안전장치: 전부 0초만 채워졌다면 2초로 분배
+    if len(kbps_per_sec) == 1 and 0 in kbps_per_sec and SEG_LEN >= 2:
+        total = kbps_per_sec[0]
+        half = round(total / SEG_LEN, 2)
+        kbps_per_sec = {0: half, 1: half}  # 균등 분배(간단/안정)
+
+    return kbps_per_sec
+
+
+def extract_bitrate_per_segment(segment_dir: str, out_csv_path: str, add_one_index: bool = True):
+    """
+    각 세그먼트(ts/mp4)의 1초 단위 비트레이트 측정 → CSV 저장
+    columns: segment_name,time_second,bitrate_kbps,resolution
+    - segment_dir: ./static/{video}/ai_segment  (권장)
+    - out_csv_path: ./static/{video}/bitrate/{video}_bitrate_per_second.csv
+    - add_one_index: 세그먼트 인덱스를 +1 해서 프론트 표기와 맞출지 여부
+    """
+    import csv
+    from glob import glob
+
+    os.makedirs(os.path.dirname(out_csv_path), exist_ok=True)
+
+    # [CHANGED] ts/mp4 모두 대상
+    files = sorted(
+        glob(os.path.join(segment_dir, "ai_seg_*_*.ts")) +
+        glob(os.path.join(segment_dir, "ai_seg_*_*.mp4")),
+        key=lambda p: os.path.basename(p)
+    )
+
+    rows = []
+    for seg_path in files:
+        try:
+            idx, res, ext = _normalize_seg_name(seg_path)
+        except ValueError:
+            # 이름 규칙 벗어나면 스킵
+            continue
+
+        disp_idx = idx + 1 if add_one_index else idx
+        # [CHANGED] 프론트에서 보기 좋은 표기 고정: ai_seg_{n}_{res}.mp4
+        segment_name_for_csv = f"ai_seg_{disp_idx}_{res}.mp4"
+
+        # 1초 버킷별 kbps 집계
+        sec_kbps = _probe_kbps_per_second(seg_path)
+        for sec in sorted(sec_kbps.keys()):
+            rows.append([segment_name_for_csv, sec, round(sec_kbps[sec], 2), res])
+
+    # 시간/세그먼트 순 정렬
+    def _sort_key(row):
+        # row = [segment_name, sec, kbps, res]
+        # segment_name: ai_seg_{n}_{res}.mp4
+        try:
+            n = int(row[0].split("_")[2])  # n
+        except Exception:
+            n = 0
+        return (n, row[1])
+
+    rows.sort(key=_sort_key)
+
+    # CSV 저장
+    with open(out_csv_path, "w", newline="", encoding="utf-8") as fw:
+        writer = csv.writer(fw)
+        writer.writerow(["segment_name", "time_second", "bitrate_kbps", "resolution"])  # [CHANGED]
+        writer.writerows(rows)
+
+    # [CHANGED] 파일 로그
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(f"[{video_name}] Bitrate CSV saved: {out_csv_path} (rows={len(rows)})\n")
+    print(f"[비트레이트 분석 완료] → {out_csv_path}")
+
 
 # (8) 전체 실행
 if __name__ == "__main__":
@@ -829,6 +943,13 @@ if __name__ == "__main__":
             CRF_MODEL, 
             MAXRATE_MODEL)
         
+        # [CHANGED] 세그먼트별 초단위 비트레이트 추출 + CSV 저장
+        bitrate_dir = f"./static/{video_name}/bitrate"
+        os.makedirs(bitrate_dir, exist_ok=True)
+        bitrate_csv = os.path.join(bitrate_dir, f"{video_name}_bitrate_per_second.csv")  # 예: husky_encode13_bitrate_per_second.csv
+        extract_bitrate_per_segment(ai_segment, bitrate_csv, add_one_index=True)  # [CHANGED]
+
+
         print("3. concat.txt 생성")
         concat_dir = f"./static/{video_name}/concat_dir"
         os.makedirs(concat_dir, exist_ok=True)
@@ -842,14 +963,7 @@ if __name__ == "__main__":
         merged_mp4s = concat_segments_multi_res(
             concat_txts, 
             merged_dir)
-        
-        print("5. 병합 mp4 재인코딩")
-        fixed_dir = f"./static/{video_name}/fixed"
-        os.makedirs(fixed_dir, exist_ok=True)
-        fixed_mp4s = reencode_mp4_multi_res(
-            merged_mp4s, 
-            fixed_dir)
-        
+    
         print("6. mp4box로 dash 분할 + mpd 생성 (1개)")
         mp4box_dir = f"./static/{video_name}/mp4box"
         os.makedirs(mp4box_dir, exist_ok=True)
